@@ -211,7 +211,7 @@ export const StudyAbroad: React.FC = () => {
                              />
                              <span className="ml-2 font-bold text-gray-500">€</span>
                           </div>
-                          <p className="text-xs text-gray-500 mt-2">Public France ~170€-601€ | Privé > 5000€</p>
+                          <p className="text-xs text-gray-500 mt-2">Public France ~170€-601€ | Privé {' > '} 5000€</p>
                       </div>
                   </div>
 
