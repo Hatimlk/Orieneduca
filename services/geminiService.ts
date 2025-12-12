@@ -1,21 +1,17 @@
 
 import { GoogleGenAI, Chat } from "@google/genai";
 
-// Utilisation d'une méthode plus sûre pour accéder aux variables d'environnement dans Vite
-// Note: Sur Vercel, assurez-vous d'ajouter API_KEY dans les "Environment Variables" des réglages du projet.
-const getApiKey = () => {
-  try {
-    return (import.meta as any).env?.VITE_API_KEY || (process as any).env?.API_KEY || '';
-  } catch (e) {
-    return '';
-  }
-};
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const apiKey = getApiKey();
-const ai = new GoogleGenAI({ apiKey });
-
+/**
+ * Creates a chat session for orientation counseling.
+ * Uses ai.chats.create for text-based conversation with grounding capabilities.
+ */
 export const createChatSession = (userLocation?: { latitude: number, longitude: number }): Chat => {
-  return ai.live.connect({
+  // Fix: Use ai.chats.create instead of ai.live.connect because live.connect (Live API) 
+  // does not support toolConfig for grounding and returns a Promise<LiveSession> which 
+  // doesn't have sendMessageStream.
+  return ai.chats.create({
     model: 'gemini-2.5-flash',
     config: {
       systemInstruction: `Tu es un conseiller d'orientation expert et bienveillant, spécialisé dans le système éducatif marocain et français (Post-Bac). 
@@ -34,6 +30,7 @@ export const createChatSession = (userLocation?: { latitude: number, longitude: 
         { googleSearch: {} },
         { googleMaps: {} }
       ],
+      // toolConfig is supported in ai.chats.create and ai.models.generateContent
       toolConfig: userLocation ? {
         retrievalConfig: {
           latLng: {
@@ -43,7 +40,7 @@ export const createChatSession = (userLocation?: { latitude: number, longitude: 
         }
       } : undefined,
     },
-  }) as any; // Cast car l'interface Chat de createChatSession est plus adaptée ici
+  });
 };
 
 export type { Chat };
