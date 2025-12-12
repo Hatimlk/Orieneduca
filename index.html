@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
   <head>
@@ -20,7 +21,7 @@
                 50: '#eff6ff',
                 100: '#dbeafe',
                 500: '#3b82f6',
-                600: '#2563eb', // Brand Royal Blue
+                600: '#2563eb',
                 700: '#1d4ed8',
                 900: '#1e3a8a',
               },
@@ -30,9 +31,23 @@
                 200: '#d9f99d',
                 300: '#bef264',
                 400: '#a3e635',
-                500: '#84cc16', // Brand Lime Green
+                500: '#84cc16',
                 600: '#65a30d',
                 700: '#4d7c0f',
+              }
+            },
+            animation: {
+              'marquee': 'marquee 25s linear infinite',
+              'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+            },
+            keyframes: {
+              marquee: {
+                '0%': { transform: 'translateX(0%)' },
+                '100%': { transform: 'translateX(-50%)' },
+              },
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
               }
             }
           }
@@ -42,8 +57,8 @@
     <style>
       body {
         font-family: 'Inter', sans-serif;
+        margin: 0;
       }
-      /* Custom Scrollbar for chat */
       .scrollbar-hide::-webkit-scrollbar {
           display: none;
       }
@@ -51,20 +66,31 @@
           -ms-overflow-style: none;
           scrollbar-width: none;
       }
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      .animate-float {
+        animation: float 3s ease-in-out infinite;
+      }
     </style>
   <script type="importmap">
 {
   "imports": {
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+    "vite": "https://esm.sh/vite@^7.2.7",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
   }
 }
 </script>
 </head>
-  <body class="bg-gray-50 text-gray-900">
+  <body class="bg-gray-50 text-gray-900 overflow-x-hidden">
     <div id="root"></div>
+    <!-- Vite injectera automatiquement le bundle ici lors de la compilation -->
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>

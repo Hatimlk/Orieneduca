@@ -1,12 +1,21 @@
 
 import { GoogleGenAI, Chat } from "@google/genai";
 
-const apiKey = process.env.API_KEY || '';
+// Utilisation d'une méthode plus sûre pour accéder aux variables d'environnement dans Vite
+// Note: Sur Vercel, assurez-vous d'ajouter API_KEY dans les "Environment Variables" des réglages du projet.
+const getApiKey = () => {
+  try {
+    return (import.meta as any).env?.VITE_API_KEY || (process as any).env?.API_KEY || '';
+  } catch (e) {
+    return '';
+  }
+};
 
+const apiKey = getApiKey();
 const ai = new GoogleGenAI({ apiKey });
 
 export const createChatSession = (userLocation?: { latitude: number, longitude: number }): Chat => {
-  return ai.chats.create({
+  return ai.live.connect({
     model: 'gemini-2.5-flash',
     config: {
       systemInstruction: `Tu es un conseiller d'orientation expert et bienveillant, spécialisé dans le système éducatif marocain et français (Post-Bac). 
@@ -33,9 +42,8 @@ export const createChatSession = (userLocation?: { latitude: number, longitude: 
           }
         }
       } : undefined,
-      temperature: 0.7,
     },
-  });
+  }) as any; // Cast car l'interface Chat de createChatSession est plus adaptée ici
 };
 
 export type { Chat };
