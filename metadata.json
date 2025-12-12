@@ -1,5 +1,7 @@
 {
   "name": "Orieneduca",
-  "description": "Votre plateforme d'orientation scolaire et professionnelle intelligente. Trouvez votre voie, explorez les écoles et calculez vos notes.",
-  "requestFramePermissions": []
+  "description": "Votre plateforme d'orientation scolaire et professionnelle intelligente au Maroc. Trouvez votre voie, explorez les écoles et calculez vos notes avec l'aide de l'IA.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }

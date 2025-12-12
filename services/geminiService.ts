@@ -1,13 +1,11 @@
+
 import { GoogleGenAI, Chat } from "@google/genai";
 
 const apiKey = process.env.API_KEY || '';
 
-// Initialize the client
-// Note: In a real production app, ensure API_KEY is handled securely (e.g., proxy)
-// For this frontend-only demo, we use the env var directly.
 const ai = new GoogleGenAI({ apiKey });
 
-export const createChatSession = (): Chat => {
+export const createChatSession = (userLocation?: { latitude: number, longitude: number }): Chat => {
   return ai.chats.create({
     model: 'gemini-2.5-flash',
     config: {
@@ -16,13 +14,25 @@ export const createChatSession = (): Chat => {
       
       Règles:
       1. Sois précis sur les acronymes (CPGE, ENSA, ENCG, FST, EST, BTS, etc.).
-      2. Donne des conseils personnalisés en fonction des notes, des intérêts et de la ville de l'étudiant si fournis.
-      3. Reste encourageant mais réaliste concernant les seuils d'admission.
-      4. Tes réponses doivent être structurées et lisibles (utilise des listes à puces).
-      5. Si on te demande de calculer une note, explique la formule mais conseille d'utiliser le simulateur du site.
+      2. Utilise la recherche Google pour vérifier les dates de concours 2024/2025 et les seuils d'admission récents si l'utilisateur le demande.
+      3. Utilise Google Maps pour localiser des établissements si l'utilisateur demande des écoles "proches" ou dans une ville précise.
+      4. Reste encourageant mais réaliste concernant les seuils d'admission.
+      5. Tes réponses doivent être structurées (listes à puces) et inclure les sources (liens) fournies par les outils de recherche.
       6. Parle toujours en français.
       
       Contexte: Tu es l'assistant virtuel du site "Orieneduca".`,
+      tools: [
+        { googleSearch: {} },
+        { googleMaps: {} }
+      ],
+      toolConfig: userLocation ? {
+        retrievalConfig: {
+          latLng: {
+            latitude: userLocation.latitude,
+            longitude: userLocation.longitude
+          }
+        }
+      } : undefined,
       temperature: 0.7,
     },
   });

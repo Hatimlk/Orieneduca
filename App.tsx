@@ -18,7 +18,7 @@ import { Consultation } from './components/Consultation';
 import { PrivacyPolicy, LegalNotice } from './components/LegalPages';
 import { NavPage, User } from './types';
 import { MOCK_BLOG_POSTS } from './constants';
-import { ArrowRight, Calendar, ChevronRight, GraduationCap, Target, Compass, Shield, Zap, Users, Quote, MapPin, Mail, Phone, Globe, MessageCircle, Sparkles, ChevronLeft, Clock, Trophy, BarChart } from 'lucide-react';
+import { ArrowRight, Calendar, ChevronRight, GraduationCap, Target, Compass, Shield, Zap, Users, Quote, MapPin, Mail, Phone, Globe, MessageCircle, Sparkles, ChevronLeft, Clock, Trophy, BarChart, Bell, Info } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<NavPage>(NavPage.HOME);
@@ -26,7 +26,6 @@ const App: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  // Route Protection Helper
   const renderProtectedPage = (component: React.ReactNode, title: string, description: string) => {
     if (!user?.isPremium) {
       return (
@@ -134,16 +133,21 @@ const App: React.FC = () => {
         );
       case NavPage.HOME:
       default:
-        return <HomePage 
-          onNavigate={(page) => {
-            if (page === NavPage.CONCOURS && !user) {
-                 setIsAuthModalOpen(true);
-            } else {
-                 setCurrentPage(page);
-            }
-          }} 
-          onOpenChat={() => setIsChatOpen(true)}
-        />;
+        return (
+          <>
+            <AlertBar />
+            <HomePage 
+              onNavigate={(page) => {
+                if (page === NavPage.CONCOURS && !user) {
+                     setIsAuthModalOpen(true);
+                } else {
+                     setCurrentPage(page);
+                }
+              }} 
+              onOpenChat={() => setIsChatOpen(true)}
+            />
+          </>
+        );
     }
   };
 
@@ -164,7 +168,6 @@ const App: React.FC = () => {
         {renderPage()}
       </main>
 
-      {/* Floating AI Chatbot Widget - Available on all pages except Admin */}
       {currentPage !== NavPage.ADMIN_DASHBOARD && (
           <AICounselor isOpen={isChatOpen} onToggle={() => setIsChatOpen(!isChatOpen)} />
       )}
@@ -188,7 +191,29 @@ const App: React.FC = () => {
   );
 };
 
-// Components defined here to avoid circular dependencies or for simplicity in this structure
+const AlertBar = () => (
+  <div className="bg-accent-500 py-2 overflow-hidden whitespace-nowrap relative z-40 border-b border-accent-600">
+    <div className="flex animate-marquee items-center gap-12 px-4">
+      <div className="flex items-center text-gray-900 font-bold text-xs uppercase tracking-widest">
+        <Bell className="w-4 h-4 mr-2 animate-pulse" />
+        Concours ENSA 2024 : Inscriptions ouvertes jusqu'au 30 Juin
+      </div>
+      <div className="flex items-center text-gray-900 font-bold text-xs uppercase tracking-widest">
+        <Globe className="w-4 h-4 mr-2" />
+        Bourses Eiffel : Publication des résultats imminente
+      </div>
+      <div className="flex items-center text-gray-900 font-bold text-xs uppercase tracking-widest">
+        <Info className="w-4 h-4 mr-2" />
+        Nouveau : Guide des filières Tech 2025 disponible
+      </div>
+      {/* Duplicate for seamless marquee */}
+      <div className="flex items-center text-gray-900 font-bold text-xs uppercase tracking-widest">
+        <Bell className="w-4 h-4 mr-2 animate-pulse" />
+        Concours ENSA 2024 : Inscriptions ouvertes jusqu'au 30 Juin
+      </div>
+    </div>
+  </div>
+);
 
 const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () => void }> = ({ onNavigate, onOpenChat }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -228,7 +253,7 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
-        const scrollAmount = 350; // Approx width of card + gap
+        const scrollAmount = 350;
         scrollContainerRef.current.scrollBy({
             left: direction === 'left' ? -scrollAmount : scrollAmount,
             behavior: 'smooth'
@@ -246,10 +271,8 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light"></div>
             <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-primary-600/30 rounded-full blur-[120px] animate-pulse mix-blend-screen"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-accent-500/20 rounded-full blur-[120px] animate-pulse delay-700 mix-blend-screen"></div>
-            {/* Grid Pattern */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
             
-            {/* Image Overlay */}
             <img 
                 src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop" 
                 alt="Students background" 
@@ -260,16 +283,14 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full text-center pt-12">
              
-             {/* Floating Badge */}
              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/90 text-sm font-medium mb-10 backdrop-blur-xl animate-fade-in-up shadow-2xl hover:bg-white/10 transition-colors cursor-default ring-1 ring-white/5">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-500"></span>
                 </span>
-                Votre meilleur choix pour le bon chemin
+                Le portail N°1 d'orientation Post-Bac au Maroc
              </div>
              
-             {/* Main Title */}
              <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold text-white tracking-tight mb-8 leading-[1.1] animate-fade-in-up delay-100 drop-shadow-2xl">
                 L'Orientation <br className="md:hidden" />
                 <span className="relative inline-block px-2">
@@ -284,7 +305,6 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
                 Trouvez votre vocation, choisissez la bonne école et préparez vos concours avec la première plateforme d'orientation <span className="text-white font-semibold border-b-2 border-accent-500/50">100% digitale</span> au Maroc.
              </p>
              
-             {/* CTA Buttons */}
              <div className="flex flex-col sm:flex-row items-center justify-center gap-5 animate-fade-in-up delay-300">
                 <button 
                     onClick={() => onNavigate(NavPage.CONSULTATION)}
@@ -304,7 +324,6 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
                 </button>
              </div>
 
-             {/* Social Proof Line */}
              <div className="mt-12 flex items-center justify-center gap-4 animate-fade-in-up delay-500 opacity-90">
                  <div className="flex -space-x-3">
                      {[1,2,3,4].map(i => (
@@ -316,7 +335,7 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
         </div>
       </div>
 
-      {/* Stats Section - Floating */}
+      {/* Stats Section */}
       <div className="relative z-20 -mt-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full mb-20">
           <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 md:p-10">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-gray-200/50">
@@ -416,7 +435,7 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
           </div>
       </div>
 
-      {/* Why Choose Us - Redesigned */}
+      {/* Why Choose Us */}
       <div className="py-20 bg-gray-50">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -511,19 +530,10 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
                       </div>
                   ))}
               </div>
-              
-              <div className="text-center mt-12 md:hidden">
-                  <button 
-                      onClick={() => onNavigate(NavPage.BLOG)}
-                      className="inline-flex items-center bg-gray-100 border border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all"
-                  >
-                      Voir tous les articles <ArrowRight className="ml-2 w-4 h-4" />
-                  </button>
-              </div>
           </div>
       </div>
 
-      {/* Testimonials Section - Carousel */}
+      {/* Testimonials Section */}
       <div className="py-20 bg-white overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-12">
@@ -532,7 +542,6 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
               </div>
               
               <div className="relative group px-4 md:px-12">
-                  {/* Left Button */}
                   <button 
                     onClick={() => scroll('left')}
                     className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white p-3 rounded-full shadow-lg text-gray-600 hover:text-primary-600 hover:scale-110 transition-all hidden md:flex border border-gray-100"
@@ -541,7 +550,6 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
                     <ChevronLeft className="w-6 h-6" />
                   </button>
 
-                  {/* Scroll Container */}
                   <div 
                     ref={scrollContainerRef}
                     className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-8 scrollbar-hide scroll-smooth"
@@ -566,7 +574,6 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
                       ))}
                   </div>
 
-                  {/* Right Button */}
                   <button 
                     onClick={() => scroll('right')}
                     className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white p-3 rounded-full shadow-lg text-gray-600 hover:text-primary-600 hover:scale-110 transition-all hidden md:flex border border-gray-100"
@@ -574,13 +581,6 @@ const HomePage: React.FC<{ onNavigate: (page: NavPage) => void; onOpenChat: () =
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
-              </div>
-              
-              {/* Mobile swipe hint */}
-              <div className="flex md:hidden justify-center mt-2 space-x-2">
-                  {testimonials.map((_, i) => (
-                      <div key={i} className="w-2 h-2 rounded-full bg-gray-300"></div>
-                  ))}
               </div>
           </div>
       </div>
