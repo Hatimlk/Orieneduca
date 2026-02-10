@@ -14,6 +14,18 @@ export interface AdmissionCriteria {
   keySubjects: string[];
 }
 
+export type RegistrationStatus = 'En attente' | 'Admissible' | 'Admis' | 'Refusé' | 'Liste d\'attente';
+
+export interface Registration {
+  id: number;
+  schoolName: string;
+  formation: string;
+  date: string;
+  status: RegistrationStatus;
+  notes?: string;
+  deadline?: string;
+}
+
 export interface School {
   id: string;
   name: string;
@@ -171,5 +183,6 @@ export enum NavPage {
   ORIENTATION_TESTS = 'orientation_tests',
   CONSULTATION = 'consultation',
   PRIVACY = 'privacy',
-  LEGAL = 'legal'
+  LEGAL = 'legal',
+  COMING_SOON = 'coming_soon'
 }

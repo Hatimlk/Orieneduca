@@ -1,24 +1,24 @@
 
 
-import { School, SchoolCategory, NewsArticle, Concours, Scholarship, BlogPost, Badge, Quiz } from './types';
+import { School, SchoolCategory, NewsArticle, Concours, Scholarship, BlogPost, Badge, Quiz, Registration } from './types';
 
 // Helper to generate realistic looking data for the bulk list
 const generateSchool = (
-    id: string, 
-    name: string, 
-    cat: SchoolCategory, 
-    city: string, 
-    desc: string, 
-    isPublic: boolean, 
-    bacs: string[], 
-    grade: string, 
-    subjects: string[], 
-    network?: string,
-    // New optional params with defaults
-    def: string = "Établissement d'enseignement supérieur de référence au Maroc.",
-    dur: string = "3 à 5 ans",
-    forms: string[] = ["Tronc Commun", "Spécialisation"],
-    opps: string[] = ["Cadre supérieur", "Master", "Entrepreneuriat"]
+  id: string,
+  name: string,
+  cat: SchoolCategory,
+  city: string,
+  desc: string,
+  isPublic: boolean,
+  bacs: string[],
+  grade: string,
+  subjects: string[],
+  network?: string,
+  // New optional params with defaults
+  def: string = "Établissement d'enseignement supérieur de référence au Maroc.",
+  dur: string = "3 à 5 ans",
+  forms: string[] = ["Tronc Commun", "Spécialisation"],
+  opps: string[] = ["Cadre supérieur", "Master", "Entrepreneuriat"]
 ): School => ({
   id,
   name,
@@ -43,31 +43,31 @@ const generateSchool = (
 
 // Common Data Sets for Networks
 const ENSA_DATA = {
-    def: "Grande école d'ingénieurs publique formant des ingénieurs d'état polyvalents avec une prépa intégrée.",
-    dur: "5 ans (2 ans CPIP + 3 ans Cycle Ingénieur)",
-    forms: ["Génie Informatique", "Génie Industriel", "Génie Civil", "Génie Mécanique", "Génie Électrique", "Génie des Systèmes Télécoms", "Génie des Procédés", "Génie Énergétique"],
-    opps: ["Ingénieur d'État", "Chef de Projet", "Directeur Technique", "Consultant", "Chercheur", "Entrepreneur"]
+  def: "Grande école d'ingénieurs publique formant des ingénieurs d'état polyvalents avec une prépa intégrée.",
+  dur: "5 ans (2 ans CPIP + 3 ans Cycle Ingénieur)",
+  forms: ["Génie Informatique", "Génie Industriel", "Génie Civil", "Génie Mécanique", "Génie Électrique", "Génie des Systèmes Télécoms", "Génie des Procédés", "Génie Énergétique"],
+  opps: ["Ingénieur d'État", "Chef de Projet", "Directeur Technique", "Consultant", "Chercheur", "Entrepreneur"]
 };
 
 const ENCG_DATA = {
-    def: "École de commerce et de gestion publique accessible directement après le bac.",
-    dur: "5 ans (Grade Master)",
-    forms: ["Gestion Financière et Comptable", "Audit et Contrôle de Gestion", "Marketing et Actions Commerciales", "Commerce International", "Management des Ressources Humaines"],
-    opps: ["Auditeur", "Contrôleur de Gestion", "Responsable Marketing", "Directeur RH", "Expert-Comptable (via cycle)", "Trader"]
+  def: "École de commerce et de gestion publique accessible directement après le bac.",
+  dur: "5 ans (Grade Master)",
+  forms: ["Gestion Financière et Comptable", "Audit et Contrôle de Gestion", "Marketing et Actions Commerciales", "Commerce International", "Management des Ressources Humaines"],
+  opps: ["Auditeur", "Contrôleur de Gestion", "Responsable Marketing", "Directeur RH", "Expert-Comptable (via cycle)", "Trader"]
 };
 
 const MED_DATA = {
-    def: "Faculté formant les futurs médecins généralistes et spécialistes.",
-    dur: "6 ans (Médecine Générale)",
-    forms: ["Médecine Générale", "Spécialités (via Résidanat)", "Chirurgie", "Pédiatrie", "Cardiologie"],
-    opps: ["Médecin Généraliste", "Médecin Spécialiste", "Médecin Chercheur", "Santé Publique", "Clinique Privée"]
+  def: "Faculté formant les futurs médecins généralistes et spécialistes.",
+  dur: "6 ans (Médecine Générale)",
+  forms: ["Médecine Générale", "Spécialités (via Résidanat)", "Chirurgie", "Pédiatrie", "Cardiologie"],
+  opps: ["Médecin Généraliste", "Médecin Spécialiste", "Médecin Chercheur", "Santé Publique", "Clinique Privée"]
 };
 
 const EST_DATA = {
-    def: "École supérieure de technologie offrant des formations techniques courtes et professionnalisantes.",
-    dur: "2 ans (DUT) ou 3 ans (Licence Pro)",
-    forms: ["Génie Informatique", "Techniques de Management", "Génie Électrique", "Finance et Comptabilité", "Logistique"],
-    opps: ["Technicien Spécialisé", "Assistant Ingénieur", "Poursuite d'études (LP, Cycle Ingénieur)", "Insertion professionnelle immédiate"]
+  def: "École supérieure de technologie offrant des formations techniques courtes et professionnalisantes.",
+  dur: "2 ans (DUT) ou 3 ans (Licence Pro)",
+  forms: ["Génie Informatique", "Techniques de Management", "Génie Électrique", "Finance et Comptabilité", "Logistique"],
+  opps: ["Technicien Spécialisé", "Assistant Ingénieur", "Poursuite d'études (LP, Cycle Ingénieur)", "Insertion professionnelle immédiate"]
 };
 
 export const MOCK_SCHOOLS: School[] = [
@@ -117,7 +117,7 @@ export const MOCK_SCHOOLS: School[] = [
   generateSchool('fmp-5', 'FMP Oujda', SchoolCategory.MEDICINE, 'Oujda', 'Faculté de Médecine et de Pharmacie.', true, ['Sc. Math', 'PC', 'SVT'], 'Seuil > 12', ['SVT', 'Physique'], 'FMP', MED_DATA.def, MED_DATA.dur, MED_DATA.forms, MED_DATA.opps),
   generateSchool('fmp-6', 'FMP Tanger', SchoolCategory.MEDICINE, 'Tanger', 'Faculté de Médecine et de Pharmacie.', true, ['Sc. Math', 'PC', 'SVT'], 'Seuil > 12', ['SVT', 'Physique'], 'FMP', MED_DATA.def, MED_DATA.dur, MED_DATA.forms, MED_DATA.opps),
   generateSchool('fmp-7', 'FMP Agadir', SchoolCategory.MEDICINE, 'Agadir', 'Faculté de Médecine et de Pharmacie.', true, ['Sc. Math', 'PC', 'SVT'], 'Seuil > 12', ['SVT', 'Physique'], 'FMP', MED_DATA.def, MED_DATA.dur, MED_DATA.forms, MED_DATA.opps),
-  
+
   generateSchool('fmd-1', 'FMD Casablanca', SchoolCategory.MEDICINE, 'Casablanca', 'Faculté de Médecine Dentaire.', true, ['Sc. Math', 'PC', 'SVT'], 'Seuil > 12', ['SVT', 'Physique'], 'FMD', "Formation des médecins dentistes.", "6 ans", ["Médecine Dentaire"], ["Dentiste", "Orthodontiste", "Chirurgien dentiste"]),
   generateSchool('fmd-2', 'FMD Rabat', SchoolCategory.MEDICINE, 'Rabat', 'Faculté de Médecine Dentaire.', true, ['Sc. Math', 'PC', 'SVT'], 'Seuil > 12', ['SVT', 'Physique'], 'FMD', "Formation des médecins dentistes.", "6 ans", ["Médecine Dentaire"], ["Dentiste", "Orthodontiste", "Chirurgien dentiste"]),
 
@@ -127,7 +127,7 @@ export const MOCK_SCHOOLS: School[] = [
   generateSchool('fst-3', 'FST Fès', SchoolCategory.TECHNOLOGY, 'Fès', 'Faculté des Sciences et Techniques.', true, ['Sc. Math', 'PC'], 'Selection Dossier', ['Maths', 'Physique'], 'FST', "Faculté à caractère scientifique et technique (Système LMD Ingénieur).", "3 ans (L), 5 ans (M/Ing)", ["MIP (Maths Info Physique)", "BCG (Bio Chimie Géologie)", "Cycle Ingénieur"], ["Cadre technique", "Ingénieur", "Chercheur"]),
   generateSchool('fst-4', 'FST Marrakech', SchoolCategory.TECHNOLOGY, 'Marrakech', 'Faculté des Sciences et Techniques.', true, ['Sc. Math', 'PC'], 'Selection Dossier', ['Maths', 'Physique'], 'FST', "Faculté à caractère scientifique et technique (Système LMD Ingénieur).", "3 ans (L), 5 ans (M/Ing)", ["MIP (Maths Info Physique)", "BCG (Bio Chimie Géologie)", "Cycle Ingénieur"], ["Cadre technique", "Ingénieur", "Chercheur"]),
   generateSchool('fst-5', 'FST Tanger', SchoolCategory.TECHNOLOGY, 'Tanger', 'Faculté des Sciences et Techniques.', true, ['Sc. Math', 'PC'], 'Selection Dossier', ['Maths', 'Physique'], 'FST', "Faculté à caractère scientifique et technique (Système LMD Ingénieur).", "3 ans (L), 5 ans (M/Ing)", ["MIP (Maths Info Physique)", "BCG (Bio Chimie Géologie)", "Cycle Ingénieur"], ["Cadre technique", "Ingénieur", "Chercheur"]),
-  
+
   // --- TECHNOLOGIE (EST) ---
   generateSchool('est-1', 'EST Casablanca', SchoolCategory.TECHNOLOGY, 'Casablanca', 'École Supérieure de Technologie.', true, ['Tous Bac'], 'Selection Dossier', ['Moyenne Générale'], 'EST', EST_DATA.def, EST_DATA.dur, EST_DATA.forms, EST_DATA.opps),
   generateSchool('est-2', 'EST Salé', SchoolCategory.TECHNOLOGY, 'Salé', 'École Supérieure de Technologie.', true, ['Tous Bac'], 'Selection Dossier', ['Moyenne Générale'], 'EST', EST_DATA.def, EST_DATA.dur, EST_DATA.forms, EST_DATA.opps),
@@ -141,9 +141,9 @@ export const MOCK_SCHOOLS: School[] = [
   generateSchool('ena-4', 'ENA Tétouan', SchoolCategory.OTHER, 'Tétouan', 'École Nationale d\'Architecture.', true, ['Sc. Math', 'PC', 'SVT'], 'Concours', ['Dessin', 'Maths'], 'ENA', "La seule école publique formant des architectes d'état.", "6 ans", ["Architecture", "Urbanisme"], ["Architecte", "Urbaniste", "Inspecteur des monuments"]),
   generateSchool('ena-5', 'ENA Agadir', SchoolCategory.OTHER, 'Agadir', 'École Nationale d\'Architecture.', true, ['Sc. Math', 'PC', 'SVT'], 'Concours', ['Dessin', 'Maths'], 'ENA', "La seule école publique formant des architectes d'état.", "6 ans", ["Architecture", "Urbanisme"], ["Architecte", "Urbaniste", "Inspecteur des monuments"]),
   generateSchool('ena-6', 'ENA Oujda', SchoolCategory.OTHER, 'Oujda', 'École Nationale d\'Architecture.', true, ['Sc. Math', 'PC', 'SVT'], 'Concours', ['Dessin', 'Maths'], 'ENA', "La seule école publique formant des architectes d'état.", "6 ans", ["Architecture", "Urbanisme"], ["Architecte", "Urbaniste", "Inspecteur des monuments"]),
-  
+
   generateSchool('iav-1', 'IAV Hassan II', SchoolCategory.ENGINEERING, 'Rabat', 'Institut Agronomique et Vétérinaire.', true, ['Sc. Math', 'PC', 'SVT', 'Agronomie'], 'Selection + Test', ['SVT', 'Maths'], undefined, "Leader en sciences de la nature et de l'ingénieur.", "5 ans (Ingénieur) / 6 ans (Vétérinaire)", ["Agronomie", "Topographie", "Génie Rural", "Médecine Vétérinaire", "Industrie Agroalimentaire"], ["Ingénieur Agronome", "Vétérinaire", "Ingénieur Topographe"]),
-  
+
   // --- PRIVE ---
   generateSchool('aui-1', 'Al Akhawayn', SchoolCategory.UNIVERSITY, 'Ifrane', 'Al Akhawayn University.', false, ['Tous Bac'], 'Dossier + TOEFL', ['Anglais', 'Maths'], undefined, "Université anglophone suivant le système américain.", "4 ans (Bachelor)", ["Business Administration", "Computer Science", "Engineering", "International Studies"], ["International Career", "Master abroad"]),
   generateSchool('uirm-1', 'UIR', SchoolCategory.UNIVERSITY, 'Rabat', 'Université Internationale de Rabat.', false, ['Tous Bac'], 'Concours', ['Logique', 'Langues'], undefined, "Université semi-publique avec des partenariats internationaux.", "3 à 5 ans", ["Aerospace", "Automobile", "Dentaire", "Architecture", "Business"], ["Cadre", "Ingénieur", "Dentiste"]),
@@ -508,4 +508,23 @@ export const MOCK_QUIZZES: Quiz[] = [
       { id: 3, question: "Si LUNDI = 5, MARDI = 5, MERCREDI = 8, JEUDI = ?", options: ["5", "4", "6"], correctAnswer: 0, explanation: "Le nombre correspond au nombre de lettres du mot. JEUDI a 5 lettres." }
     ]
   },
+];
+
+export const MOCK_REGISTRATIONS: Registration[] = [
+  {
+    id: 1,
+    schoolName: 'ENSA Tanger',
+    formation: 'Génie Informatique',
+    date: '15/05/2024',
+    status: 'En attente',
+    deadline: '30/06/2024'
+  },
+  {
+    id: 2,
+    schoolName: 'FMP Casablanca',
+    formation: 'Médecine Générale',
+    date: '10/06/2024',
+    status: 'Admissible',
+    notes: 'Convoqué au concours le 25/07'
+  }
 ];

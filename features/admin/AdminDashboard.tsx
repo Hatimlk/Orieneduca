@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { 
+import {
     Users, AlertTriangle, TrendingUp, Globe, Search, Filter, CheckCircle, Clock, XCircle, Mail, FileText, X, Check, Plus, Trash2, LogIn, CheckSquare, Upload, Shield, Download
 } from 'lucide-react';
-import { User, StudentTask, StudentDocument } from '../types';
-import { dataService } from '../services/dataService';
+import { User, StudentTask, StudentDocument } from '../../types';
+import { dataService } from '../../services/dataService';
 
 interface AdminDashboardProps {
     onImpersonate?: (user: User) => void;
@@ -15,12 +15,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
     const [filterStatus, setFilterStatus] = useState('All');
     const [filterTarget, setFilterTarget] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
-    
+
     // Detail View State
     const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
     const [studentTasks, setStudentTasks] = useState<StudentTask[]>([]);
     const [studentDocs, setStudentDocs] = useState<StudentDocument[]>([]);
-    
+
     // Form States
     const [newTaskText, setNewTaskText] = useState('');
     const [newDocName, setNewDocName] = useState('');
@@ -45,9 +45,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
     const filteredStudents = students.filter(student => {
         const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) || student.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === 'All' || student.status === filterStatus;
-        const matchesTarget = filterTarget === 'All' || 
-                              (filterTarget === 'France' && student.target === 'France') ||
-                              (filterTarget === 'Maroc' && student.target?.includes('Maroc'));
+        const matchesTarget = filterTarget === 'All' ||
+            (filterTarget === 'France' && student.target === 'France') ||
+            (filterTarget === 'Maroc' && student.target?.includes('Maroc'));
         return matchesSearch && matchesStatus && matchesTarget;
     });
 
@@ -113,7 +113,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
         } else {
             // Fallback for mock data or expired URLs: Generate a text file
             const element = document.createElement("a");
-            const file = new Blob([`Contenu simulé du document: ${doc.name}\n\nÉtudiant: ${selectedStudent?.name}\nStatus: ${doc.status}`], {type: 'text/plain'});
+            const file = new Blob([`Contenu simulé du document: ${doc.name}\n\nÉtudiant: ${selectedStudent?.name}\nStatus: ${doc.status}`], { type: 'text/plain' });
             element.href = URL.createObjectURL(file);
             element.download = `${doc.name.replace(/\s+/g, '_')}_${selectedStudent?.name.replace(/\s+/g, '_')}.txt`;
             document.body.appendChild(element);
@@ -123,7 +123,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
     };
 
     const handleSendMessage = () => {
-        if(selectedStudent) {
+        if (selectedStudent) {
             window.location.href = `mailto:${selectedStudent.email}?subject=Orieneduca - Mise à jour de votre dossier`;
         }
     };
@@ -178,7 +178,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
     };
 
     const getStatusColor = (status: string | undefined) => {
-        switch(status) {
+        switch (status) {
             case 'On Track': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
             case 'Late': return 'bg-orange-100 text-orange-700 border-orange-200';
             case 'Blocked': return 'bg-red-100 text-red-700 border-red-200';
@@ -201,14 +201,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                     </p>
                 </div>
                 <div className="flex space-x-3">
-                    <button 
+                    <button
                         onClick={handleExportCSV}
                         className="bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-50 flex items-center transition-all shadow-sm"
                     >
                         <FileText className="w-4 h-4 mr-2" /> Exporter CSV
                     </button>
                     {selectedStudent ? (
-                        <button 
+                        <button
                             onClick={handleSendMessage}
                             className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 flex items-center shadow-lg shadow-slate-900/20 transition-all"
                         >
@@ -252,9 +252,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                             </h2>
                             <div className="flex items-center gap-3 w-full sm:w-auto">
                                 <div className="relative flex-1 sm:flex-none sm:w-64">
-                                    <input 
-                                        type="text" 
-                                        placeholder="Rechercher un étudiant..." 
+                                    <input
+                                        type="text"
+                                        placeholder="Rechercher un étudiant..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         className="pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full bg-white transition-all shadow-sm"
@@ -262,7 +262,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                                     <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                                 </div>
                                 <div className="relative">
-                                    <select 
+                                    <select
                                         value={filterStatus}
                                         onChange={(e) => setFilterStatus(e.target.value)}
                                         className="py-2.5 pl-4 pr-8 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium cursor-pointer shadow-sm appearance-none"
@@ -290,8 +290,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {filteredStudents.map(student => (
-                                        <tr 
-                                            key={student.id} 
+                                        <tr
+                                            key={student.id}
                                             onClick={() => setSelectedStudent(student)}
                                             className={`cursor-pointer transition-all duration-200 ${selectedStudent?.id === student.id ? 'bg-primary-50 border-l-4 border-l-primary-600' : 'hover:bg-slate-50 border-l-4 border-l-transparent'}`}
                                         >
@@ -314,7 +314,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="w-full max-w-[100px] bg-slate-200 rounded-full h-1.5 mb-1">
-                                                    <div className={`h-1.5 rounded-full ${student.progress && student.progress > 50 ? 'bg-green-500' : 'bg-orange-500'}`} style={{width: `${student.progress || 0}%`}}></div>
+                                                    <div className={`h-1.5 rounded-full ${student.progress && student.progress > 50 ? 'bg-green-500' : 'bg-orange-500'}`} style={{ width: `${student.progress || 0}%` }}></div>
                                                 </div>
                                                 <span className="text-xs font-medium text-slate-500">{student.progress || 0}%</span>
                                             </td>
@@ -390,7 +390,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
-                                <button 
+                                <button
                                     onClick={() => onImpersonate && onImpersonate(selectedStudent)}
                                     className="col-span-2 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold hover:bg-slate-50 hover:border-primary-300 hover:text-primary-600 transition-all flex items-center justify-center shadow-sm group"
                                 >
@@ -403,9 +403,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Progression Globale</label>
                                     <span className="text-sm font-bold text-primary-600">{selectedStudent.progress || 0}%</span>
                                 </div>
-                                <input 
-                                    type="range" 
-                                    min="0" max="100" 
+                                <input
+                                    type="range"
+                                    min="0" max="100"
                                     value={selectedStudent.progress || 0}
                                     onChange={(e) => handleUpdateProgress(parseInt(e.target.value))}
                                     className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-primary-600 hover:accent-primary-700"
@@ -420,8 +420,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                                 <div className="space-y-2 mb-3">
                                     {studentTasks.map(task => (
                                         <div key={task.id} className="flex items-center justify-between bg-white border border-slate-200 p-3 rounded-xl hover:border-primary-200 transition-colors group shadow-sm">
-                                            <div 
-                                                className="flex items-center cursor-pointer min-w-0" 
+                                            <div
+                                                className="flex items-center cursor-pointer min-w-0"
                                                 onClick={() => handleToggleTask(task.id)}
                                             >
                                                 <div className={`w-5 h-5 rounded border flex items-center justify-center mr-3 transition-colors shrink-0 ${task.done ? 'bg-green-500 border-green-500' : 'border-slate-300 group-hover:border-primary-400'}`}>
@@ -435,8 +435,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                                     {studentTasks.length === 0 && <p className="text-xs text-slate-400 italic text-center py-2">Aucune tâche assignée.</p>}
                                 </div>
                                 <form onSubmit={handleAddTask} className="flex gap-2">
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         value={newTaskText}
                                         onChange={(e) => setNewTaskText(e.target.value)}
                                         placeholder="Nouvelle tâche..."
@@ -466,15 +466,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                                                     )}
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                                                        doc.status === 'Validé' ? 'bg-green-50 text-green-700 border-green-200' : 
-                                                        doc.status === 'Rejeté' ? 'bg-red-50 text-red-700 border-red-200' : 
-                                                        doc.status === 'En cours' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                                        'bg-orange-50 text-orange-700 border-orange-200'
-                                                    }`}>{doc.status}</span>
-                                                    
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${doc.status === 'Validé' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                            doc.status === 'Rejeté' ? 'bg-red-50 text-red-700 border-red-200' :
+                                                                doc.status === 'En cours' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                                    'bg-orange-50 text-orange-700 border-orange-200'
+                                                        }`}>{doc.status}</span>
+
                                                     {/* Download Button - only if file present or just placeholder */}
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleDownloadDocument(doc)}
                                                         className="text-slate-400 hover:text-blue-500 transition-colors p-1"
                                                         title="Télécharger le document"
@@ -497,10 +496,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                                     ))}
                                     {studentDocs.length === 0 && <p className="text-xs text-slate-400 italic text-center py-2">Aucun document requis.</p>}
                                 </div>
-                                
+
                                 <form onSubmit={handleAddDocument} className="flex gap-2 pt-2 border-t border-slate-200">
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         value={newDocName}
                                         onChange={(e) => setNewDocName(e.target.value)}
                                         placeholder="Demander un document..."
@@ -514,8 +513,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                                 <h3 className="text-xs font-bold text-blue-800 mb-3 uppercase tracking-wide">Gamification</h3>
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm font-bold text-blue-900">{selectedStudent.points} XP</span>
-                                    <button 
-                                        onClick={() => handleAddPoints(50)} 
+                                    <button
+                                        onClick={() => handleAddPoints(50)}
                                         className="text-xs bg-white text-blue-600 px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-600 hover:text-white hover:border-transparent transition-all font-bold shadow-sm"
                                     >
                                         + 50 XP

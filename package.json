@@ -1,4 +1,3 @@
-
 {
   "name": "orieneduca-website",
   "private": true,
@@ -13,7 +12,8 @@
     "@google/genai": "^1.30.0",
     "lucide-react": "^0.454.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.5.0"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
