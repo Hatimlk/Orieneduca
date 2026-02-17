@@ -22,12 +22,9 @@ import { HomePage } from './features/website/HomePage';
 import { NavPage, User } from './types';
 import { MOCK_BLOG_POSTS } from './constants';
 import { Shield } from 'lucide-react';
-import { ComingSoon } from './features/website/ComingSoon';
-
 
 const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<NavPage>(NavPage.COMING_SOON);
-
+  const [currentPage, setCurrentPage] = useState<NavPage>(NavPage.HOME);
   const [user, setUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -156,11 +153,6 @@ const App: React.FC = () => {
         );
     }
   };
-
-  if (currentPage === NavPage.COMING_SOON) {
-    return <ComingSoon />;
-  }
-
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans relative">

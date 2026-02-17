@@ -183,6 +183,5 @@ export enum NavPage {
   ORIENTATION_TESTS = 'orientation_tests',
   CONSULTATION = 'consultation',
   PRIVACY = 'privacy',
-  LEGAL = 'legal',
-  COMING_SOON = 'coming_soon'
+  LEGAL = 'legal'
 }
