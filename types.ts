@@ -27,6 +27,7 @@ export interface Registration {
 }
 
 export interface School {
+  type: string;
   id: string;
   name: string;
   category: SchoolCategory;
@@ -94,6 +95,12 @@ export interface Scholarship {
   targetLevels: string[];
   imageUrl: string;
   tags: string[];
+  criteria?: {
+    minGrade?: number;
+    targetSector?: 'Public' | 'Education' | 'OCP' | 'Health' | 'All';
+    socialCriteria?: boolean;
+    targetCities?: string[];
+  };
 }
 
 export interface ChatMessage {

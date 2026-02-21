@@ -207,7 +207,12 @@ export const MOCK_SCHOLARSHIPS: Scholarship[] = [
     eligibility: ['Nationalité Marocaine', 'Revenu familial limité', 'Non-salarié', 'Inscrit dans le public'],
     targetLevels: ['Bac', 'Licence', 'Master'],
     imageUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1000&q=80',
-    tags: ['Public', 'Social', 'National']
+    tags: ['Public', 'Social', 'National'],
+    criteria: {
+      minGrade: 10, // Just need to pass
+      targetSector: 'All',
+      socialCriteria: true
+    }
   },
   {
     id: 'ocp',
@@ -218,11 +223,37 @@ export const MOCK_SCHOLARSHIPS: Scholarship[] = [
     type: 'Excellence',
     deadline: '15 Septembre',
     value: 'Couverture Totale + Vie',
-    description: 'Programme prestigieux pour soutenir les bacheliers brillants issus de milieux défavorisés accédant aux grandes écoles (UM6P, CPGE, etc.).',
+    description: 'Programme prestigieux pour soutenir les bacheliers brillants issus de milieux défavorisés accédant aux grandes écoles.',
     eligibility: ['Bac Mention Très Bien', 'Revenu modeste', 'Admis dans une filière d\'excellence'],
     targetLevels: ['Bac'],
     imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1000&q=80',
-    tags: ['Prestige', 'Ingénierie', 'UM6P']
+    tags: ['Prestige', 'Ingénierie', 'UM6P'],
+    criteria: {
+      minGrade: 16,
+      targetSector: 'All',
+      socialCriteria: true,
+      targetCities: ['Khouribga', 'Benguerir', 'Youssoufia', 'Safi', 'Jorf Lasfar']
+    }
+  },
+  {
+    id: 'fm6',
+    title: 'Bourse Istihqaq',
+    provider: 'Fondation Mohammed VI',
+    location: 'Maroc',
+    country: 'Maroc',
+    type: 'Excellence',
+    deadline: '30 Septembre',
+    value: '3000 DH / mois',
+    description: 'Bourse de mérite destinée aux enfants des adhérents de la Fondation (Enseignement) ayant obtenu le Bac avec Excellence.',
+    eligibility: ['Parent Enseignant', 'Bac Mention Très Bien (≥16/20)', 'Inscription validée'],
+    targetLevels: ['Bac'],
+    imageUrl: 'https://images.unsplash.com/photo-1427504746696-ea5abd7dfe83?auto=format&fit=crop&w=1000&q=80',
+    tags: ['Réservé', 'Éducation', 'Mérite'],
+    criteria: {
+      minGrade: 16,
+      targetSector: 'Education',
+      socialCriteria: false
+    }
   },
   {
     id: 'eiffel',
@@ -237,7 +268,12 @@ export const MOCK_SCHOLARSHIPS: Scholarship[] = [
     eligibility: ['Excellence académique', 'Moins de 25 ans (Master)', 'Candidature présentée par l\'établissement'],
     targetLevels: ['Master', 'Doctorat'],
     imageUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1000&q=80',
-    tags: ['France', 'Ingénierie', 'Gestion']
+    tags: ['France', 'Ingénierie', 'Gestion'],
+    criteria: {
+      minGrade: 14,
+      targetSector: 'All',
+      socialCriteria: false
+    }
   },
   {
     id: 'chevening',
@@ -252,7 +288,12 @@ export const MOCK_SCHOLARSHIPS: Scholarship[] = [
     eligibility: ['Licence validée', '2 ans d\'expérience pro', 'Potentiel de leadership'],
     targetLevels: ['Master'],
     imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1000&q=80',
-    tags: ['Leadership', 'Anglais', 'Master']
+    tags: ['Leadership', 'Anglais', 'Master'],
+    criteria: {
+      minGrade: 14,
+      targetSector: 'All',
+      socialCriteria: false
+    }
   },
   {
     id: 'fulbright',
@@ -267,7 +308,12 @@ export const MOCK_SCHOLARSHIPS: Scholarship[] = [
     eligibility: ['Licence (4 ans)', 'Bon niveau d\'anglais (TOEFL)', 'Excellence académique'],
     targetLevels: ['Master'],
     imageUrl: 'https://images.unsplash.com/photo-1508433957232-3107f5fd5995?auto=format&fit=crop&w=1000&q=80',
-    tags: ['USA', 'Recherche', 'Prestige']
+    tags: ['USA', 'Recherche', 'Prestige'],
+    criteria: {
+      minGrade: 14,
+      targetSector: 'All',
+      socialCriteria: false
+    }
   },
   {
     id: 'hungary',
@@ -282,7 +328,12 @@ export const MOCK_SCHOLARSHIPS: Scholarship[] = [
     eligibility: ['Baccalauréat', 'Dossier académique solide', 'Test de langue (Anglais)'],
     targetLevels: ['Licence', 'Master', 'Doctorat'],
     imageUrl: 'https://images.unsplash.com/photo-1559734602-f51d25a63174?auto=format&fit=crop&w=1000&q=80',
-    tags: ['Europe', 'Accessible', 'Tous niveaux']
+    tags: ['Europe', 'Accessible', 'Tous niveaux'],
+    criteria: {
+      minGrade: 12,
+      targetSector: 'All',
+      socialCriteria: false
+    }
   },
   {
     id: 'csc',
@@ -297,7 +348,12 @@ export const MOCK_SCHOLARSHIPS: Scholarship[] = [
     eligibility: ['Bonne santé', 'Bon dossier', 'Anglais ou Chinois'],
     targetLevels: ['Licence', 'Master', 'Doctorat'],
     imageUrl: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1000&q=80',
-    tags: ['Asie', 'Généreux', 'Logement inclus']
+    tags: ['Asie', 'Généreux', 'Logement inclus'],
+    criteria: {
+      minGrade: 13,
+      targetSector: 'All',
+      socialCriteria: false
+    }
   }
 ];
 
@@ -512,14 +568,6 @@ export const MOCK_QUIZZES: Quiz[] = [
 
 export const MOCK_REGISTRATIONS: Registration[] = [
   {
-    id: 1,
-    schoolName: 'ENSA Tanger',
-    formation: 'Génie Informatique',
-    date: '15/05/2024',
-    status: 'En attente',
-    deadline: '30/06/2024'
-  },
-  {
     id: 2,
     schoolName: 'FMP Casablanca',
     formation: 'Médecine Générale',
@@ -527,4 +575,32 @@ export const MOCK_REGISTRATIONS: Registration[] = [
     status: 'Admissible',
     notes: 'Convoqué au concours le 25/07'
   }
+];
+
+export const HISTORICAL_SEUILS = [
+  // --- ENSA (National Average Trends) ---
+  { school: 'ENSA', city: 'National', branch: 'SM', years: { 2020: 12.50, 2021: 12.00, 2022: 12.00, 2023: 12.50, 2024: 12.75 } },
+  { school: 'ENSA', city: 'National', branch: 'PC', years: { 2020: 15.40, 2021: 14.50, 2022: 14.00, 2023: 14.50, 2024: 15.20 } },
+  { school: 'ENSA', city: 'National', branch: 'SVT', years: { 2020: 16.50, 2021: 15.50, 2022: 15.00, 2023: 15.50, 2024: 16.00 } },
+
+  // --- ENSAM (Meknès & Casa averaged for simplicity, can be split) ---
+  { school: 'ENSAM', city: 'National', branch: 'SM', years: { 2020: 13.50, 2021: 12.50, 2022: 12.25, 2023: 12.75, 2024: 13.00 } },
+  { school: 'ENSAM', city: 'National', branch: 'PC', years: { 2020: 16.50, 2021: 15.80, 2022: 15.50, 2023: 16.00, 2024: 16.17 } },
+  { school: 'ENSAM', city: 'National', branch: 'SVT', years: { 2020: 17.50, 2021: 16.50, 2022: 16.00, 2023: 16.50, 2024: 17.00 } },
+
+  // --- ENCG (TAFEM is a concours, but pre-selection exists) ---
+  { school: 'ENCG', city: 'National', branch: 'Eco', years: { 2020: 12.00, 2021: 12.00, 2022: 12.00, 2023: 12.00, 2024: 12.00 } }, // Fixed threshold usually
+  { school: 'ENCG', city: 'National', branch: 'SM', years: { 2020: 12.50, 2021: 12.50, 2022: 12.00, 2023: 12.00, 2024: 12.50 } },
+  { school: 'ENCG', city: 'National', branch: 'PC', years: { 2020: 14.50, 2021: 14.00, 2022: 13.50, 2023: 14.00, 2024: 14.00 } },
+
+  // --- Médecine (FMP/FMD) ---
+  { school: 'Médecine', city: 'National', branch: 'All', years: { 2020: 12.00, 2021: 12.00, 2022: 12.00, 2023: 12.00, 2024: 13.00 } }, // recent change to 13.00 for some
+
+  // --- ISCAE (Elite) ---
+  { school: 'ISCAE', city: 'Casablanca', branch: 'Eco', years: { 2020: 18.50, 2021: 18.00, 2022: 17.80, 2023: 17.50, 2024: 17.97 } },
+  { school: 'ISCAE', city: 'Casablanca', branch: 'SM', years: { 2020: 18.00, 2021: 17.50, 2022: 17.42, 2023: 17.80, 2024: 18.10 } },
+  { school: 'ISCAE', city: 'Casablanca', branch: 'PC', years: { 2020: 18.90, 2021: 18.50, 2022: 18.20, 2023: 18.50, 2024: 18.82 } },
+
+  // --- ENA (Architecture) ---
+  { school: 'ENA', city: 'National', branch: 'All', years: { 2020: 14.00, 2021: 13.50, 2022: 13.00, 2023: 13.00, 2024: 13.00 } }
 ];

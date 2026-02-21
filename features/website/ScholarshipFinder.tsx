@@ -1,8 +1,9 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Globe, DollarSign, Calendar, Tag, ArrowUpRight, Search, MapPin, Filter, GraduationCap, CheckCircle, X, ChevronRight, ShieldCheck, Calculator, Info, ExternalLink, Landmark, Radio, Bell, FileText, AlertCircle, CheckSquare, Clock, Download, Send, Check, ArrowRight } from 'lucide-react';
+import { Globe, DollarSign, Calendar, Tag, ArrowUpRight, Search, MapPin, Filter, GraduationCap, CheckCircle, X, ChevronRight, ShieldCheck, Calculator, Info, ExternalLink, Landmark, Radio, Bell, FileText, AlertCircle, CheckSquare, Clock, Download, Send, Check, ArrowRight, Sparkles, Brain, Lock, Loader } from 'lucide-react';
 import { MOCK_SCHOLARSHIPS } from '../../constants';
 import { Scholarship } from '../../types';
+import { ScholarshipService } from '../../services/ScholarshipService'; // Import Service
 
 export const ScholarshipFinder: React.FC = () => {
     const [activeLocation, setActiveLocation] = useState<'All' | 'Maroc' | 'Étranger'>('All');
@@ -10,9 +11,32 @@ export const ScholarshipFinder: React.FC = () => {
     const [selectedType, setSelectedType] = useState('All');
     const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null);
 
-    // Real-time simulation state
-    const [scholarships, setScholarships] = useState<Scholarship[]>(MOCK_SCHOLARSHIPS);
+    // Wizard State
+    const [wizardStep, setWizardStep] = useState(1);
+    const [profile, setProfile] = useState({
+        grade: 14,
+        branch: 'SM',
+        parentJob: 'Autre',
+        rsu: '',
+        city: 'Casablanca'
+    });
+    const [showWizard, setShowWizard] = useState(true);
+
+    // Data State
+    const [scholarships, setScholarships] = useState<Scholarship[]>([]);
+    const [loading, setLoading] = useState(true);
     const [showLiveToast, setShowLiveToast] = useState(false);
+
+    // Fetch Data
+    useEffect(() => {
+        const loadScholarships = async () => {
+            setLoading(true);
+            const data = await ScholarshipService.getAll();
+            setScholarships(data);
+            setLoading(false);
+        };
+        loadScholarships();
+    }, []);
     const [latestScholarship, setLatestScholarship] = useState<Scholarship | null>(null);
 
     // Simulate Real-time Updates
@@ -85,9 +109,31 @@ export const ScholarshipFinder: React.FC = () => {
         }
     };
 
+    // Match Logic
+    const calculateMatch = (s: Scholarship) => {
+        let score = 0;
+        const criteria = s.criteria;
+
+        if (!criteria) return 50; // Default score for basic scholarships
+
+        // Academic
+        if (criteria.minGrade && profile.grade >= criteria.minGrade) score += 40;
+        else if (criteria.minGrade && profile.grade >= criteria.minGrade - 1) score += 20; // Close enough
+
+        // Social / Sector
+        if (criteria.targetSector === 'All') score += 10;
+        if (criteria.targetSector === profile.parentJob) score += 40; // Huge boost for sector match (FM6, OCP)
+        if (criteria.socialCriteria && profile.rsu && parseFloat(profile.rsu) < 9.32) score += 20;
+
+        // Location
+        if (criteria.targetCities && criteria.targetCities.includes(profile.city)) score += 20;
+
+        return Math.min(100, score);
+    };
+
     // Filter Logic
     const filteredScholarships = useMemo(() => {
-        return scholarships.filter(s => {
+        let filtered = scholarships.filter(s => {
             const matchesLocation = activeLocation === 'All' || s.location === activeLocation;
             const matchesSearch = s.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 s.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -96,7 +142,14 @@ export const ScholarshipFinder: React.FC = () => {
 
             return matchesLocation && matchesSearch && matchesType;
         });
-    }, [scholarships, activeLocation, searchTerm, selectedType]);
+
+        // Sort by match score if wizard is active
+        if (showWizard) {
+            filtered = filtered.sort((a, b) => calculateMatch(b) - calculateMatch(a));
+        }
+
+        return filtered;
+    }, [scholarships, activeLocation, searchTerm, selectedType, showWizard, profile]); // Add profile to deps
 
     // Minhaty Guide Component (Internal Tool for Modal)
     const MinhatyGuide = () => {
@@ -199,6 +252,13 @@ export const ScholarshipFinder: React.FC = () => {
 
         const progress = (Object.values(checkedDocs).filter(Boolean).length / documentsList.length) * 100;
 
+        const handleAICoach = () => {
+            const prompt = `Je postule pour la bourse ${scholarship.title}. Mon profil : ${profile.grade}/20, Parent ${profile.parentJob}. Aide-moi à structurer ma lettre en mettant en avant mes atouts pour ce programme spécifique.`;
+            const event = new CustomEvent('open-ai-chat', { detail: { message: prompt } });
+            window.dispatchEvent(event);
+            onClose();
+        };
+
         if (!scholarship) return null;
 
         return (
@@ -241,8 +301,8 @@ export const ScholarshipFinder: React.FC = () => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as any)}
                                 className={`flex items-center pb-3 pt-3 mr-6 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${activeTab === tab.id
-                                        ? 'border-primary-600 text-primary-700'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                                    ? 'border-primary-600 text-primary-700'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700'
                                     }`}
                             >
                                 <span className="mr-2">{tab.icon}</span>
@@ -325,8 +385,8 @@ export const ScholarshipFinder: React.FC = () => {
                                                 key={idx}
                                                 onClick={() => toggleDoc(doc)}
                                                 className={`flex items-center p-4 rounded-xl border cursor-pointer transition-all ${checkedDocs[doc]
-                                                        ? 'bg-green-50 border-green-200'
-                                                        : 'bg-gray-50 border-gray-100 hover:bg-white hover:shadow-sm'
+                                                    ? 'bg-green-50 border-green-200'
+                                                    : 'bg-gray-50 border-gray-100 hover:bg-white hover:shadow-sm'
                                                     }`}
                                             >
                                                 <div className={`w-5 h-5 rounded border flex items-center justify-center mr-4 transition-colors ${checkedDocs[doc] ? 'bg-green-500 border-green-500' : 'border-gray-400 bg-white'
@@ -339,6 +399,26 @@ export const ScholarshipFinder: React.FC = () => {
                                             </div>
                                         ))}
                                     </div>
+
+                                    {scholarship.type === 'Excellence' && (
+                                        <div className="mt-6 p-4 bg-purple-50 rounded-xl border border-purple-100">
+                                            <div className="flex items-start gap-4">
+                                                <div className="bg-purple-100 p-2 rounded-lg text-purple-600">
+                                                    <Brain className="w-6 h-6" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-gray-900 text-sm mb-1">Coach IA pour Lettre de Motivation</h4>
+                                                    <p className="text-xs text-gray-600 mb-3">L'IA peut analyser votre profil et les critères de {scholarship.provider} pour générer un plan détaillé.</p>
+                                                    <button
+                                                        onClick={handleAICoach}
+                                                        className="text-xs font-bold text-purple-700 bg-white border border-purple-200 px-3 py-1.5 rounded-lg hover:bg-purple-600 hover:text-white transition-all flex items-center"
+                                                    >
+                                                        <Sparkles className="w-3 h-3 mr-1.5" /> Générer mon plan
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -362,6 +442,9 @@ export const ScholarshipFinder: React.FC = () => {
                                             </a>
                                             <button className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center justify-center">
                                                 <Download className="w-4 h-4 mr-2" /> Télécharger le guide PDF
+                                            </button>
+                                            <button className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-bold shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity">
+                                                <Bell className="w-4 h-4 mr-2" /> M'alerter par SMS (Premium)
                                             </button>
                                         </div>
                                     </div>
@@ -450,32 +533,166 @@ export const ScholarshipFinder: React.FC = () => {
                         Accédez à la base de données la plus complète : Bourses Minhaty, Excellence, Erasmus, Chevening et plus encore.
                     </p>
 
-                    {/* Main Search Bar */}
-                    <div className="bg-white p-2 rounded-2xl shadow-2xl flex flex-col sm:flex-row gap-2 max-w-2xl mx-auto">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Rechercher (ex: Minhaty, France...)"
-                                className="w-full pl-12 pr-4 py-3 rounded-xl text-gray-900 placeholder-gray-500 outline-none focus:bg-gray-50 transition-colors"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <div className="bg-gray-100 w-px h-8 my-auto hidden sm:block"></div>
-                        <select
-                            value={activeLocation}
-                            onChange={(e) => setActiveLocation(e.target.value as any)}
-                            className="bg-transparent px-4 py-3 text-gray-700 font-bold outline-none cursor-pointer hover:text-primary-600 transition-colors"
+                    {/* Wizard Mode Toggle */}
+                    <div className="flex justify-center mb-6">
+                        <button
+                            onClick={() => setShowWizard(!showWizard)}
+                            className={`px-4 py-1 rounded-full text-xs font-bold border transition-all ${showWizard ? 'bg-accent-500 text-gray-900 border-accent-500' : 'bg-transparent text-gray-300 border-gray-500'}`}
                         >
-                            <option value="All">Toutes destinations</option>
-                            <option value="Maroc">🇲🇦 Maroc Uniquement</option>
-                            <option value="Étranger">🌍 International</option>
-                        </select>
-                        <button className="bg-accent-500 hover:bg-accent-400 text-gray-900 px-6 py-3 rounded-xl font-bold transition-all shadow-lg sm:w-auto w-full">
-                            Chercher
+                            {showWizard ? '✨ Mode Assistant Activé' : 'Mode Recherche Classique'}
                         </button>
                     </div>
+
+                    {showWizard ? (
+                        /* Eligibility Wizard */
+                        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-2xl mx-auto animate-fade-in-up">
+                            <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Assistant Bourse-Match</span>
+                                <div className="flex gap-2">
+                                    {[1, 2, 3].map(step => (
+                                        <div key={step} className={`w-2 h-2 rounded-full ${wizardStep >= step ? 'bg-accent-500' : 'bg-gray-300'}`}></div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="p-6 md:p-8">
+                                {wizardStep === 1 && (
+                                    <div className="space-y-6 animate-fade-in">
+                                        <h3 className="text-xl font-bold text-gray-900">1. Profil Académique</h3>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Moyenne Générale (Bac/Dernier diplôme)</label>
+                                            <input
+                                                type="range"
+                                                min="10"
+                                                max="20"
+                                                step="0.1"
+                                                value={profile.grade}
+                                                onChange={(e) => setProfile({ ...profile, grade: parseFloat(e.target.value) })}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent-500"
+                                            />
+                                            <div className="text-center font-mono text-3xl font-bold text-primary-600 mt-2">{profile.grade.toFixed(2)}/20</div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Filière</label>
+                                            <div className="grid grid-cols-3 gap-2">
+                                                {['SM', 'PC', 'SVT', 'Eco', 'Tech', 'Lettres'].map(b => (
+                                                    <button
+                                                        key={b}
+                                                        onClick={() => setProfile({ ...profile, branch: b })}
+                                                        className={`py-2 rounded-lg text-sm font-bold border ${profile.branch === b ? 'bg-primary-50 border-primary-500 text-primary-700' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                                                    >
+                                                        {b}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <button onClick={() => setWizardStep(2)} className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-all">Suivant</button>
+                                    </div>
+                                )}
+
+                                {wizardStep === 2 && (
+                                    <div className="space-y-6 animate-fade-in">
+                                        <h3 className="text-xl font-bold text-gray-900">2. Situation Sociale</h3>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Profession des parents</label>
+                                            <select
+                                                value={profile.parentJob}
+                                                onChange={(e) => setProfile({ ...profile, parentJob: e.target.value })}
+                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium outline-none focus:ring-2 focus:ring-accent-400"
+                                            >
+                                                <option value="Autre">Autre / Secteur Privé</option>
+                                                <option value="Education">Enseignement / Education (FM6)</option>
+                                                <option value="OCP">Groupe OCP</option>
+                                                <option value="Public">Fonction Publique</option>
+                                                <option value="Sante">Santé</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Score RSU (Optionnel)</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Ex: 9.14"
+                                                value={profile.rsu}
+                                                onChange={(e) => setProfile({ ...profile, rsu: e.target.value })}
+                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium outline-none focus:ring-2 focus:ring-accent-400"
+                                            />
+                                            <p className="text-xs text-gray-400 mt-1">Utilisé pour calculer l'éligibilité aux bourses sociales (Minhaty).</p>
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <button onClick={() => setWizardStep(1)} className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-all">Retour</button>
+                                            <button onClick={() => setWizardStep(3)} className="flex-1 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-all">Suivant</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {wizardStep === 3 && (
+                                    <div className="space-y-6 animate-fade-in">
+                                        <h3 className="text-xl font-bold text-gray-900">3. Localisation</h3>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Ville de résidence</label>
+                                            <select
+                                                value={profile.city}
+                                                onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium outline-none focus:ring-2 focus:ring-accent-400"
+                                            >
+                                                <option value="Casablanca">Casablanca</option>
+                                                <option value="Rabat">Rabat</option>
+                                                <option value="Fes">Fès</option>
+                                                <option value="Marrakech">Marrakech</option>
+                                                <option value="Tanger">Tanger</option>
+                                                <option value="Agadir">Agadir</option>
+                                                <option value="Oujda">Oujda</option>
+                                                <option value="Laayoune">Laâyoune</option>
+                                                <option value="Benguerir">Benguerir</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="bg-green-50 p-4 rounded-xl border border-green-100 flex items-start gap-3">
+                                            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                                            <div>
+                                                <h4 className="font-bold text-green-800 text-sm">Profil complet !</h4>
+                                                <p className="text-green-700 text-xs">Nous allons scanner toutes les bourses disponibles pour trouver votre match parfait.</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-3">
+                                            <button onClick={() => setWizardStep(2)} className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-all">Retour</button>
+                                            <button onClick={() => setShowWizard(false)} className="flex-1 py-3 bg-accent-500 text-gray-900 rounded-xl font-bold hover:bg-accent-400 shadow-lg transition-all transform hover:scale-105">
+                                                Voir mes résultats
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        /* Standard Search Bar */
+                        <div className="bg-white p-2 rounded-2xl shadow-2xl flex flex-col sm:flex-row gap-2 max-w-2xl mx-auto animate-fade-in">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Rechercher (ex: Minhaty, France...)"
+                                    className="w-full pl-12 pr-4 py-3 rounded-xl text-gray-900 placeholder-gray-500 outline-none focus:bg-gray-50 transition-colors"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            <div className="bg-gray-100 w-px h-8 my-auto hidden sm:block"></div>
+                            <select
+                                value={activeLocation}
+                                onChange={(e) => setActiveLocation(e.target.value as any)}
+                                className="bg-transparent px-4 py-3 text-gray-700 font-bold outline-none cursor-pointer hover:text-primary-600 transition-colors"
+                            >
+                                <option value="All">Toutes destinations</option>
+                                <option value="Maroc">🇲🇦 Maroc Uniquement</option>
+                                <option value="Étranger">🌍 International</option>
+                            </select>
+                            <button className="bg-accent-500 hover:bg-accent-400 text-gray-900 px-6 py-3 rounded-xl font-bold transition-all shadow-lg sm:w-auto w-full">
+                                Chercher
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -516,8 +733,8 @@ export const ScholarshipFinder: React.FC = () => {
                             key={type}
                             onClick={() => setSelectedType(type)}
                             className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all shadow-sm border ${selectedType === type
-                                    ? 'bg-white text-primary-700 border-primary-200 ring-2 ring-primary-100'
-                                    : 'bg-white/90 text-gray-600 border-white hover:bg-white'
+                                ? 'bg-white text-primary-700 border-primary-200 ring-2 ring-primary-100'
+                                : 'bg-white/90 text-gray-600 border-white hover:bg-white'
                                 }`}
                         >
                             {type === 'All' ? 'Tous les types' : type}
@@ -527,78 +744,96 @@ export const ScholarshipFinder: React.FC = () => {
 
                 {/* Results Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredScholarships.map((scholarship) => {
-                        const urgency = getUrgency(scholarship.deadline);
-                        const isNew = scholarship.id === 'live-1';
-                        return (
-                            <div
-                                key={scholarship.id}
-                                className={`bg-white rounded-2xl border shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col overflow-hidden cursor-pointer relative ${isNew ? 'border-green-400 ring-2 ring-green-100' : 'border-gray-100'}`}
-                                onClick={() => setSelectedScholarship(scholarship)}
-                            >
-                                <div className="h-40 relative overflow-hidden">
-                                    <img
-                                        src={scholarship.imageUrl}
-                                        alt={scholarship.title}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                    {loading ? (
+                        <div className="col-span-full flex flex-col items-center justify-center py-20">
+                            <Loader className="w-10 h-10 text-primary-600 animate-spin mb-4" />
+                            <p className="text-gray-500 font-medium">Chargement des bourses...</p>
+                        </div>
+                    ) : (
+                        filteredScholarships.map((scholarship) => {
+                            const urgency = getUrgency(scholarship.deadline);
+                            const isNew = scholarship.id === 'live-1';
+                            const matchScore = calculateMatch(scholarship); // Calculate on the fly for display
 
-                                    {/* Badges */}
-                                    <div className="absolute top-3 left-3 flex gap-2">
-                                        <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide text-white shadow-sm ${scholarship.location === 'Maroc' ? 'bg-green-600' : 'bg-blue-600'}`}>
-                                            {scholarship.location}
-                                        </span>
-                                    </div>
+                            return (
+                                <div
+                                    key={scholarship.id}
+                                    className={`bg-white rounded-2xl border shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col overflow-hidden cursor-pointer relative ${isNew ? 'border-green-400 ring-2 ring-green-100' : 'border-gray-100'}`}
+                                    onClick={() => setSelectedScholarship(scholarship)}
+                                >
+                                    <div className="h-40 relative overflow-hidden">
+                                        <img
+                                            src={scholarship.imageUrl}
+                                            alt={scholarship.title}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
 
-                                    <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-                                        <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide shadow-sm ${urgency.color}`}>
-                                            {urgency.label}
-                                        </span>
-                                        {isNew && (
-                                            <span className="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide shadow-sm bg-green-500 text-white animate-pulse">
-                                                Nouveau
-                                            </span>
+                                        {/* Match Badge */}
+                                        {matchScore > 50 && (
+                                            <div className="absolute top-3 right-auto left-3 z-10">
+                                                <span className={`text-[10px] font-bold px-2 py-1 rounded-md shadow-lg flex items-center ${matchScore > 80 ? 'bg-accent-500 text-gray-900' : 'bg-yellow-400 text-yellow-900'}`}>
+                                                    <Sparkles className="w-3 h-3 mr-1" /> {matchScore}% Match
+                                                </span>
+                                            </div>
                                         )}
-                                    </div>
 
-                                    <div className="absolute bottom-3 left-3 right-3 text-white">
-                                        <p className="text-xs opacity-90 font-medium mb-1">{scholarship.provider}</p>
-                                        <h3 className="text-lg font-bold leading-tight line-clamp-2">{scholarship.title}</h3>
-                                    </div>
-                                </div>
-
-                                <div className="p-5 flex-1 flex flex-col">
-                                    <div className="space-y-3 mb-4">
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="text-gray-500 flex items-center"><MapPin className="w-4 h-4 mr-1.5" /> Pays</span>
-                                            <span className="font-bold text-gray-900">{scholarship.country}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="text-gray-500 flex items-center"><Clock className="w-4 h-4 mr-1.5" /> Deadline</span>
-                                            <span className={`font-bold ${urgency.urgent ? 'text-red-600' : 'text-gray-900'}`}>{scholarship.deadline}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center text-sm bg-green-50 p-2 rounded-lg border border-green-100">
-                                            <span className="text-green-700 flex items-center font-medium"><DollarSign className="w-4 h-4 mr-1.5" /> Valeur</span>
-                                            <span className="font-bold text-green-800 text-xs truncate max-w-[120px]">{scholarship.value}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-wrap gap-2 mb-4 mt-auto">
-                                        {scholarship.tags.slice(0, 2).map(tag => (
-                                            <span key={tag} className="text-[10px] font-bold px-2 py-1 bg-gray-100 text-gray-600 rounded-md border border-gray-200">
-                                                #{tag}
+                                        {/* Location Badge */}
+                                        <div className="absolute top-10 left-3 flex gap-2">
+                                            <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide text-white shadow-sm ${scholarship.location === 'Maroc' ? 'bg-green-600' : 'bg-blue-600'}`}>
+                                                {scholarship.location}
                                             </span>
-                                        ))}
+                                        </div>
+
+                                        <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
+                                            <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide shadow-sm ${urgency.color}`}>
+                                                {urgency.label}
+                                            </span>
+                                            {isNew && (
+                                                <span className="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide shadow-sm bg-green-500 text-white animate-pulse">
+                                                    Nouveau
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="absolute bottom-3 left-3 right-3 text-white">
+                                            <p className="text-xs opacity-90 font-medium mb-1">{scholarship.provider}</p>
+                                            <h3 className="text-lg font-bold leading-tight line-clamp-2">{scholarship.title}</h3>
+                                        </div>
                                     </div>
 
-                                    <button className="w-full py-2.5 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 hover:text-primary-600 hover:border-primary-200 transition-all flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white group-hover:border-primary-600">
-                                        Voir détails <ChevronRight className="w-4 h-4 ml-1" />
-                                    </button>
+                                    <div className="p-5 flex-1 flex flex-col">
+                                        <div className="space-y-3 mb-4">
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-gray-500 flex items-center"><MapPin className="w-4 h-4 mr-1.5" /> Pays</span>
+                                                <span className="font-bold text-gray-900">{scholarship.country}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-gray-500 flex items-center"><Clock className="w-4 h-4 mr-1.5" /> Deadline</span>
+                                                <span className={`font-bold ${urgency.urgent ? 'text-red-600' : 'text-gray-900'}`}>{scholarship.deadline}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm bg-green-50 p-2 rounded-lg border border-green-100">
+                                                <span className="text-green-700 flex items-center font-medium"><DollarSign className="w-4 h-4 mr-1.5" /> Valeur</span>
+                                                <span className="font-bold text-green-800 text-xs truncate max-w-[120px]">{scholarship.value}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2 mb-4 mt-auto">
+                                            {scholarship.tags.slice(0, 2).map(tag => (
+                                                <span key={tag} className="text-[10px] font-bold px-2 py-1 bg-gray-100 text-gray-600 rounded-md border border-gray-200">
+                                                    #{tag}
+                                                </span>
+                                            ))}
+                                        </div>
+
+                                        <button className="w-full py-2.5 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 hover:text-primary-600 hover:border-primary-200 transition-all flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white group-hover:border-primary-600">
+                                            Voir détails <ChevronRight className="w-4 h-4 ml-1" />
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })
+                    )}
                 </div>
 
                 {filteredScholarships.length === 0 && (

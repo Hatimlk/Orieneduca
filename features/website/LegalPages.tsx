@@ -60,7 +60,12 @@ export const PrivacyPolicy: React.FC = () => {
         Nous mettons en œuvre une variété de mesures de sécurité pour préserver la sécurité de vos informations personnelles. Nous utilisons un cryptage à la pointe de la technologie pour protéger les informations sensibles transmises en ligne. Nous protégeons également vos informations hors ligne. Seuls les employés qui ont besoin d'effectuer un travail spécifique (par exemple, la facturation ou le service à la clientèle) ont accès aux informations personnelles identifiables.
       </p>
 
-      <h3>6. Consentement</h3>
+      <h3>6. Données Académiques et Loi 09-08</h3>
+      <p>
+        Conformément à la loi 09-08 relative à la protection des personnes physiques à l'égard du traitement des données à caractère personnel, vous disposez d'un droit d'accès et de rectification aux informations qui vous concernent. Les données académiques (notes, filières) collectées via le simulateur sont utilisées exclusivement à des fins de calcul et de statistiques anonymisées pour améliorer la précision de nos algorithmes prédictifs.
+      </p>
+
+      <h3>7. Consentement</h3>
       <p>En utilisant notre site, vous consentez à notre politique de confidentialité.</p>
     </LegalLayout>
   );
@@ -81,7 +86,7 @@ export const LegalNotice: React.FC = () => {
 
       <h3>2. Hébergement</h3>
       <p>
-        Le site est hébergé par la société <strong>Vercel Inc.</strong><br/>
+        Le site est hébergé par la société <strong>Vercel Inc.</strong><br />
         <span className="flex items-center mt-1"><Server className="w-4 h-4 mr-2 text-gray-400" /> 340 S Lemon Ave #4133 Walnut, CA 91789, USA</span>
       </p>
 

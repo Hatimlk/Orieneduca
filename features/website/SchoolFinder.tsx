@@ -1,8 +1,9 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, MapPin, CheckCircle, Filter, Building2, Crown, BookOpen, Target, Percent, ChevronRight, Map, Layers, ArrowLeft, ArrowRight, School as SchoolIcon, FileText, Loader2, ArrowDownCircle, ShieldCheck, ExternalLink, AlertTriangle, GraduationCap, Globe, Clock, Briefcase, Zap, Calculator, Activity, TrendingUp, Cpu } from 'lucide-react';
+import { Search, MapPin, CheckCircle, Filter, Building2, Crown, BookOpen, Target, Percent, ChevronRight, Map, Layers, ArrowLeft, ArrowRight, School as SchoolIcon, FileText, Loader2, ArrowDownCircle, ShieldCheck, ExternalLink, AlertTriangle, GraduationCap, Globe, Clock, Briefcase, Zap, Calculator, Activity, TrendingUp, Cpu, Loader } from 'lucide-react';
 import { MOCK_SCHOOLS } from '../../constants';
 import { SchoolCategory, School } from '../../types';
+import { SchoolService } from '../../services/SchoolService';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -309,6 +310,21 @@ export const SchoolFinder: React.FC = () => {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [isFiltering, setIsFiltering] = useState(false);
 
+    // Data State
+    const [schools, setSchools] = useState<School[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    // Fetch Fetch
+    useEffect(() => {
+        const loadSchools = async () => {
+            setLoading(true);
+            const data = await SchoolService.getAll();
+            setSchools(data);
+            setLoading(false);
+        };
+        loadSchools();
+    }, []);
+
     // Reset pagination and simulate loading when filters change
     useEffect(() => {
         setIsFiltering(true);
@@ -321,7 +337,7 @@ export const SchoolFinder: React.FC = () => {
 
     // Base filtering logic
     const filteredSchools = useMemo(() => {
-        return MOCK_SCHOOLS.filter(school => {
+        return schools.filter(school => {
             const term = searchTerm.toLowerCase();
 
             const matchesSearch =
@@ -354,7 +370,7 @@ export const SchoolFinder: React.FC = () => {
 
             return matchesSearch && matchesCategory && matchesRegion && matchesPublic && matchesBac;
         });
-    }, [searchTerm, selectedCategory, selectedRegion, selectedBac, isPublicFilter]);
+    }, [searchTerm, selectedCategory, selectedRegion, selectedBac, isPublicFilter, schools]);
 
     // Grouping Logic
     const schoolsToDisplay = useMemo(() => {
@@ -429,7 +445,7 @@ export const SchoolFinder: React.FC = () => {
 
         if (item.isNetworkHeader && item.network) {
             // If it's a network card, get all schools in that network
-            schoolsToShow = MOCK_SCHOOLS.filter(s => s.network === item.network);
+            schoolsToShow = schools.filter(s => s.network === item.network);
             title = `${item.network} MAROC`;
         } else {
             // If it's a single school card (search result or standalone)

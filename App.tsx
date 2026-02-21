@@ -1,5 +1,6 @@
 
-import React, { useState, useRef } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 import { Header } from './components/Header';
 import { SchoolFinder } from './features/website/SchoolFinder';
 import { BacCalculator } from './features/website/BacCalculator';
@@ -7,7 +8,7 @@ import { AICounselor } from './components/AICounselor';
 import { ConcoursList } from './features/client/ConcoursList';
 import { ScholarshipFinder } from './features/website/ScholarshipFinder';
 import { PremiumGate } from './features/client/PremiumGate';
-import { AuthModal } from './components/AuthModal';
+import { AuthModal } from './features/auth/AuthModal';
 import { StudentDashboard } from './features/client/StudentDashboard';
 import { AdminDashboard } from './features/admin/AdminDashboard';
 import { StudyAbroad } from './features/website/StudyAbroad';
@@ -22,12 +23,33 @@ import { HomePage } from './features/website/HomePage';
 import { NavPage, User } from './types';
 import { MOCK_BLOG_POSTS } from './constants';
 import { Shield } from 'lucide-react';
+import { AuthService } from './services/AuthService';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<NavPage>(NavPage.HOME);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(AuthService.getCurrentUser());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+
+  // Listen for Auth Changes
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setUser(AuthService.getCurrentUser());
+    };
+    window.addEventListener('auth-change', handleAuthChange);
+    return () => window.removeEventListener('auth-change', handleAuthChange);
+  }, []);
+
+  // Redirect to Dashboard on Login
+  useEffect(() => {
+    if (user && currentPage !== NavPage.DASHBOARD && currentPage !== NavPage.ADMIN_DASHBOARD) {
+      if (user.role === 'admin') {
+        setCurrentPage(NavPage.ADMIN_DASHBOARD);
+      } else {
+        setCurrentPage(NavPage.DASHBOARD);
+      }
+    }
+  }, [user]);
 
   const renderProtectedPage = (component: React.ReactNode, title: string, description: string) => {
     if (!user?.isPremium) {
@@ -43,6 +65,7 @@ const App: React.FC = () => {
   };
 
   const handleImpersonate = (studentUser: User) => {
+    // For admin impersonation - this might need a special AuthService method or just local state override if strictly frontend-only
     setUser(studentUser);
     setCurrentPage(NavPage.DASHBOARD);
   };
@@ -162,7 +185,7 @@ const App: React.FC = () => {
         user={user}
         onLoginClick={() => setIsAuthModalOpen(true)}
         onLogoutClick={() => {
-          setUser(null);
+          AuthService.logout();
           setCurrentPage(NavPage.HOME);
         }}
       />
@@ -180,18 +203,10 @@ const App: React.FC = () => {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onLogin={(newUser) => {
-          setUser(newUser);
-          setIsAuthModalOpen(false);
-          if (newUser.role === 'admin') {
-            setCurrentPage(NavPage.ADMIN_DASHBOARD);
-          } else {
-            setCurrentPage(NavPage.DASHBOARD);
-          }
-        }}
       />
     </div>
   );
 };
 
 export default App;
+
