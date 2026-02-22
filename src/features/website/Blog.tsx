@@ -5,6 +5,13 @@ import { Calendar, Clock, User, ChevronRight, Tag, ArrowLeft, Search, BookOpen, 
 import { MOCK_BLOG_POSTS } from '../../constants';
 import { BlogPost, NavPage } from '../../types';
 
+// Simulated API Fetch functionality
+const fetchBlogPosts = async (): Promise<BlogPost[]> => {
+    // const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/blog`);
+    // return response.json();
+    return new Promise(resolve => setTimeout(() => resolve(MOCK_BLOG_POSTS), 300));
+};
+
 interface BlogProps {
     onNavigate?: (page: NavPage) => void;
 }
@@ -14,6 +21,18 @@ export const Blog: React.FC<BlogProps> = ({ onNavigate }) => {
     const [filterCategory, setFilterCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [scrollProgress, setScrollProgress] = useState(0);
+
+    const [allPosts, setAllPosts] = useState<BlogPost[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadBlogPosts = async () => {
+            const data = await fetchBlogPosts();
+            setAllPosts(data);
+            setLoading(false);
+        };
+        loadBlogPosts();
+    }, []);
 
     // Local state for interactions (mock)
     const [likes, setLikes] = useState<Record<string, number>>({});
@@ -47,9 +66,9 @@ export const Blog: React.FC<BlogProps> = ({ onNavigate }) => {
         }));
     };
 
-    const categories = ['All', ...Array.from(new Set(MOCK_BLOG_POSTS.map(post => post.category)))];
+    const categories = ['All', ...Array.from(new Set(allPosts.map(post => post.category)))];
 
-    const filteredPosts = MOCK_BLOG_POSTS.filter(post => {
+    const filteredPosts = allPosts.filter(post => {
         const matchesCategory = filterCategory === 'All' || post.category === filterCategory;
         const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
@@ -104,7 +123,7 @@ export const Blog: React.FC<BlogProps> = ({ onNavigate }) => {
     // --- DETAIL VIEW ---
     if (selectedPost) {
         // Find related posts (same category, not current)
-        const relatedPosts = MOCK_BLOG_POSTS
+        const relatedPosts = allPosts
             .filter(p => p.category === selectedPost.category && p.id !== selectedPost.id)
             .slice(0, 2);
 
@@ -362,8 +381,8 @@ export const Blog: React.FC<BlogProps> = ({ onNavigate }) => {
                                 key={cat}
                                 onClick={() => setFilterCategory(cat)}
                                 className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide transition-all ${filterCategory === cat
-                                        ? 'bg-gray-900 text-white shadow-md transform scale-105'
-                                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                    ? 'bg-gray-900 text-white shadow-md transform scale-105'
+                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                                     }`}
                             >
                                 {cat === 'All' ? 'Tout' : cat}
@@ -375,148 +394,154 @@ export const Blog: React.FC<BlogProps> = ({ onNavigate }) => {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
 
-                {/* Hero Section (Bento Grid) */}
-                {featuredPost && (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
-                        {/* Main Featured */}
-                        <div
-                            onClick={() => setSelectedPost(featuredPost)}
-                            className="lg:col-span-2 group relative rounded-3xl overflow-hidden shadow-2xl cursor-pointer h-[400px] lg:h-[500px]"
-                        >
-                            <img
-                                src={featuredPost.imageUrl}
-                                alt={featuredPost.title}
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
-
-                            <div className="absolute bottom-0 left-0 p-8 md:p-10 w-full">
-                                <span className="bg-accent-500 text-gray-900 text-xs font-bold px-3 py-1 rounded-lg uppercase tracking-wide mb-4 inline-block">
-                                    À la une
-                                </span>
-                                <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 leading-tight group-hover:text-primary-200 transition-colors">
-                                    {featuredPost.title}
-                                </h2>
-                                <div className="flex items-center text-white/80 text-sm font-medium space-x-4">
-                                    <span className="flex items-center"><Calendar className="w-4 h-4 mr-2" /> {featuredPost.date}</span>
-                                    <span className="w-1 h-1 bg-white/50 rounded-full"></span>
-                                    <span className="flex items-center"><Clock className="w-4 h-4 mr-2" /> {featuredPost.readTime}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Trending Side */}
-                        <div className="flex flex-col gap-8">
-                            <div className="flex items-center space-x-2 pb-2 border-b border-gray-200">
-                                <TrendingUp className="w-5 h-5 text-primary-600" />
-                                <h3 className="font-bold text-gray-900 uppercase tracking-wide text-sm">Tendance</h3>
-                            </div>
-
-                            {trendingPosts.map((post) => (
+                {loading ? (
+                    <div className="text-center py-20 text-gray-500">Chargement des articles...</div>
+                ) : (
+                    <>
+                        {/* Hero Section (Bento Grid) */}
+                        {featuredPost && (
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
+                                {/* Main Featured */}
                                 <div
-                                    key={post.id}
-                                    onClick={() => setSelectedPost(post)}
-                                    className="flex-1 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group flex flex-col"
+                                    onClick={() => setSelectedPost(featuredPost)}
+                                    className="lg:col-span-2 group relative rounded-3xl overflow-hidden shadow-2xl cursor-pointer h-[400px] lg:h-[500px]"
                                 >
-                                    <div className="h-32 overflow-hidden relative">
-                                        <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={post.title} />
-                                        <div className="absolute top-3 left-3">
-                                            <span className="bg-white/90 backdrop-blur text-xs font-bold px-2 py-1 rounded shadow-sm">
-                                                {post.category}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="p-5 flex-1 flex flex-col justify-center">
-                                        <h4 className="font-bold text-gray-900 text-lg leading-snug group-hover:text-primary-600 transition-colors line-clamp-2">
-                                            {post.title}
-                                        </h4>
-                                        <div className="mt-3 flex items-center text-xs text-gray-400">
-                                            <span className="font-medium text-gray-600">{post.author}</span>
-                                            <span className="mx-2">•</span>
-                                            <span>{post.readTime}</span>
+                                    <img
+                                        src={featuredPost.imageUrl}
+                                        alt={featuredPost.title}
+                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+
+                                    <div className="absolute bottom-0 left-0 p-8 md:p-10 w-full">
+                                        <span className="bg-accent-500 text-gray-900 text-xs font-bold px-3 py-1 rounded-lg uppercase tracking-wide mb-4 inline-block">
+                                            À la une
+                                        </span>
+                                        <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 leading-tight group-hover:text-primary-200 transition-colors">
+                                            {featuredPost.title}
+                                        </h2>
+                                        <div className="flex items-center text-white/80 text-sm font-medium space-x-4">
+                                            <span className="flex items-center"><Calendar className="w-4 h-4 mr-2" /> {featuredPost.date}</span>
+                                            <span className="w-1 h-1 bg-white/50 rounded-full"></span>
+                                            <span className="flex items-center"><Clock className="w-4 h-4 mr-2" /> {featuredPost.readTime}</span>
                                         </div>
                                     </div>
                                 </div>
-                            ))}
+
+                                {/* Trending Side */}
+                                <div className="flex flex-col gap-8">
+                                    <div className="flex items-center space-x-2 pb-2 border-b border-gray-200">
+                                        <TrendingUp className="w-5 h-5 text-primary-600" />
+                                        <h3 className="font-bold text-gray-900 uppercase tracking-wide text-sm">Tendance</h3>
+                                    </div>
+
+                                    {trendingPosts.map((post) => (
+                                        <div
+                                            key={post.id}
+                                            onClick={() => setSelectedPost(post)}
+                                            className="flex-1 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group flex flex-col"
+                                        >
+                                            <div className="h-32 overflow-hidden relative">
+                                                <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={post.title} />
+                                                <div className="absolute top-3 left-3">
+                                                    <span className="bg-white/90 backdrop-blur text-xs font-bold px-2 py-1 rounded shadow-sm">
+                                                        {post.category}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="p-5 flex-1 flex flex-col justify-center">
+                                                <h4 className="font-bold text-gray-900 text-lg leading-snug group-hover:text-primary-600 transition-colors line-clamp-2">
+                                                    {post.title}
+                                                </h4>
+                                                <div className="mt-3 flex items-center text-xs text-gray-400">
+                                                    <span className="font-medium text-gray-600">{post.author}</span>
+                                                    <span className="mx-2">•</span>
+                                                    <span>{post.readTime}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Grid Section */}
+                        <div>
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-2xl font-bold text-gray-900">
+                                    {filterCategory === 'All' ? 'Derniers Articles' : filterCategory}
+                                </h3>
+                                <div className="h-px flex-1 bg-gray-200 ml-6"></div>
+                            </div>
+
+                            {gridPosts.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+                                    {gridPosts.map((post, index) => (
+                                        <div
+                                            key={post.id}
+                                            onClick={() => setSelectedPost(post)}
+                                            className="group cursor-pointer flex flex-col h-full"
+                                        >
+                                            <div className="rounded-2xl overflow-hidden shadow-sm mb-5 relative h-64">
+                                                <div className="absolute inset-0 bg-gray-900/10 group-hover:bg-transparent transition-colors z-10"></div>
+                                                <img
+                                                    src={post.imageUrl}
+                                                    alt={post.title}
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                />
+                                                <div className="absolute top-4 left-4 z-20">
+                                                    <span className="bg-white text-gray-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-md uppercase tracking-wide">
+                                                        {post.category}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex-1 flex flex-col">
+                                                <div className="flex items-center text-xs text-gray-500 font-medium mb-3 space-x-3">
+                                                    <span className="text-primary-600">{post.date}</span>
+                                                    <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                                    <span>{post.readTime} de lecture</span>
+                                                </div>
+
+                                                <h3 className="text-xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-primary-600 transition-colors">
+                                                    {post.title}
+                                                </h3>
+
+                                                <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-3">
+                                                    {post.excerpt}
+                                                </p>
+
+                                                <div className="mt-auto flex items-center pt-4 border-t border-gray-100">
+                                                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 mr-3">
+                                                        {post.author.charAt(0)}
+                                                    </div>
+                                                    <span className="text-sm font-bold text-gray-700">{post.author}</span>
+                                                    <div className="ml-auto">
+                                                        <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-primary-600 group-hover:translate-x-1 transition-all" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
+                                    <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <BookOpen className="w-8 h-8 text-gray-400" />
+                                    </div>
+                                    <h3 className="text-gray-900 font-medium text-lg">Aucun article trouvé</h3>
+                                    <p className="text-gray-500 mt-2">Essayez d'autres mots-clés.</p>
+                                    <button
+                                        onClick={() => { setSearchQuery(''); setFilterCategory('All'); }}
+                                        className="mt-4 text-primary-600 hover:text-primary-700 font-medium"
+                                    >
+                                        Voir tout
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    </>
                 )}
-
-                {/* Grid Section */}
-                <div>
-                    <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-2xl font-bold text-gray-900">
-                            {filterCategory === 'All' ? 'Derniers Articles' : filterCategory}
-                        </h3>
-                        <div className="h-px flex-1 bg-gray-200 ml-6"></div>
-                    </div>
-
-                    {gridPosts.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-                            {gridPosts.map((post, index) => (
-                                <div
-                                    key={post.id}
-                                    onClick={() => setSelectedPost(post)}
-                                    className="group cursor-pointer flex flex-col h-full"
-                                >
-                                    <div className="rounded-2xl overflow-hidden shadow-sm mb-5 relative h-64">
-                                        <div className="absolute inset-0 bg-gray-900/10 group-hover:bg-transparent transition-colors z-10"></div>
-                                        <img
-                                            src={post.imageUrl}
-                                            alt={post.title}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                        />
-                                        <div className="absolute top-4 left-4 z-20">
-                                            <span className="bg-white text-gray-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-md uppercase tracking-wide">
-                                                {post.category}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex-1 flex flex-col">
-                                        <div className="flex items-center text-xs text-gray-500 font-medium mb-3 space-x-3">
-                                            <span className="text-primary-600">{post.date}</span>
-                                            <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                                            <span>{post.readTime} de lecture</span>
-                                        </div>
-
-                                        <h3 className="text-xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-primary-600 transition-colors">
-                                            {post.title}
-                                        </h3>
-
-                                        <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-3">
-                                            {post.excerpt}
-                                        </p>
-
-                                        <div className="mt-auto flex items-center pt-4 border-t border-gray-100">
-                                            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 mr-3">
-                                                {post.author.charAt(0)}
-                                            </div>
-                                            <span className="text-sm font-bold text-gray-700">{post.author}</span>
-                                            <div className="ml-auto">
-                                                <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-primary-600 group-hover:translate-x-1 transition-all" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
-                            <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <BookOpen className="w-8 h-8 text-gray-400" />
-                            </div>
-                            <h3 className="text-gray-900 font-medium text-lg">Aucun article trouvé</h3>
-                            <p className="text-gray-500 mt-2">Essayez d'autres mots-clés.</p>
-                            <button
-                                onClick={() => { setSearchQuery(''); setFilterCategory('All'); }}
-                                className="mt-4 text-primary-600 hover:text-primary-700 font-medium"
-                            >
-                                Voir tout
-                            </button>
-                        </div>
-                    )}
-                </div>
 
                 {/* Newsletter Full Width */}
                 <div className="mt-12 relative rounded-[3rem] overflow-hidden bg-gray-900 text-center py-20 px-6">

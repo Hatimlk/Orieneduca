@@ -1,12 +1,30 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle, ArrowRight, Search, AlertCircle, ShieldCheck, ExternalLink } from 'lucide-react';
 import { MOCK_CONCOURS } from '../../constants';
+import { Concours } from '../../types';
+
+// Simulated API Fetch functionality
+const fetchConcours = async (): Promise<Concours[]> => {
+  // const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/concours`);
+  // return response.json();
+  return new Promise(resolve => setTimeout(() => resolve(MOCK_CONCOURS), 300));
+};
 
 export const ConcoursList: React.FC = () => {
   const [filter, setFilter] = useState('All');
+  const [concours, setConcours] = useState<Concours[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredConcours = MOCK_CONCOURS.filter(c => filter === 'All' || c.accessLevel === filter);
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await fetchConcours();
+      setConcours(data);
+      setLoading(false);
+    };
+    loadData();
+  }, []);
+
+  const filteredConcours = concours.filter(c => filter === 'All' || c.accessLevel === filter);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -16,6 +34,8 @@ export const ConcoursList: React.FC = () => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  if (loading) return <div className="text-center py-12">Chargement des concours...</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -42,8 +62,8 @@ export const ConcoursList: React.FC = () => {
               key={lvl}
               onClick={() => setFilter(lvl)}
               className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${filter === lvl
-                  ? 'bg-primary-600 text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-50'
+                ? 'bg-primary-600 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-50'
                 }`}
             >
               {lvl === 'All' ? 'Tous les niveaux' : lvl}

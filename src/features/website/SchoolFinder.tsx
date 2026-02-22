@@ -130,18 +130,14 @@ const SchoolDetailView = ({ data, onBack }: { data: DetailData, onBack: () => vo
                                         {representative.isPublic ? 'Public' : 'Privé'}
                                     </span>
                                 )}
-                                <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-green-500/20 text-green-100 text-xs font-bold border border-green-500/30 backdrop-blur-md">
-                                    <ShieldCheck className="w-3 h-3 mr-1.5" /> Vérifié
-                                </span>
                             </div>
                             <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">{title}</h1>
                             {/* Short Definition */}
                             {representative.shortDefinition && (
-                                <p className="text-xl text-primary-100 font-medium mb-4 leading-relaxed">
+                                <p className="text-xl text-primary-100 font-medium mb-4 leading-relaxed max-w-2xl">
                                     {representative.shortDefinition}
                                 </p>
                             )}
-                            <p className="text-lg text-gray-300 leading-relaxed max-w-2xl opacity-80">{representative.description}</p>
                         </div>
 
                         <div className="flex-shrink-0">
@@ -177,7 +173,7 @@ const SchoolDetailView = ({ data, onBack }: { data: DetailData, onBack: () => vo
                             <Percent className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Seuil d'accès</p>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Condition d'accès</p>
                             <p className="text-lg md:text-xl font-extrabold text-gray-900">{representative.admissionCriteria?.averageGradeRequired || "Non défini"}</p>
                         </div>
                     </div>
@@ -204,6 +200,24 @@ const SchoolDetailView = ({ data, onBack }: { data: DetailData, onBack: () => vo
 
             {/* Content Grid */}
             <div className="space-y-12">
+
+                {/* Présentation Générale */}
+                <div className="bg-white rounded-xl border border-slate-100 p-6 mb-8">
+                    <h3 className="text-[15px] font-bold text-slate-800 mb-4 flex items-center">
+                        <FileText className="w-4 h-4 mr-2.5 text-blue-600" strokeWidth={2} /> Présentation Générale
+                    </h3>
+                    <div className="text-[14px] text-slate-500 leading-relaxed font-medium space-y-3">
+                        {representative.shortDefinition && (
+                            <p>{representative.shortDefinition}</p>
+                        )}
+                        {representative.description && representative.description !== representative.shortDefinition && (
+                            <p className="font-normal text-slate-600">{representative.description}</p>
+                        )}
+                        {!representative.shortDefinition && !representative.description && (
+                            <p className="italic text-slate-400 font-normal">Aucune description disponible.</p>
+                        )}
+                    </div>
+                </div>
 
                 {/* Formations & Careers */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -565,111 +579,83 @@ export const SchoolFinder: React.FC = () => {
                             return (
                                 <div
                                     key={school.id}
-                                    className="bg-white rounded-3xl shadow-lg shadow-gray-200/50 border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full group"
+                                    className="bg-white rounded-3xl shadow-sm hover:shadow-md border border-gray-100 overflow-hidden hover:-translate-y-1 transition-all duration-300 flex flex-col h-full group"
                                 >
-                                    {/* Header Image / Acronym */}
-                                    <div className={`h-32 relative overflow-hidden ${school.isNetworkHeader ? style.header : 'bg-gray-200'}`}>
-                                        {school.isNetworkHeader ? (
-                                            <>
-                                                {/* Big Acronym Background */}
-                                                <h1 className="absolute -bottom-8 -right-4 text-[10rem] font-black opacity-10 leading-none select-none pointer-events-none text-white mix-blend-overlay">
-                                                    {style.acronym}
-                                                </h1>
-                                                <div className="absolute top-4 right-4">
-                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-lg backdrop-blur-md ${school.isPublic ? 'bg-green-600 text-white' : 'bg-purple-600 text-white'}`}>
-                                                        {school.isPublic ? <Building2 className="w-3 h-3 mr-1.5" /> : <Crown className="w-3 h-3 mr-1.5" />}
-                                                        {school.isPublic ? 'Public' : 'Privé'}
-                                                    </span>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <>
-                                                {/* For individual schools, use a nice gradient or image but focused on the profile card look below */}
-                                                <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900"></div>
-                                                {/* Pattern */}
-                                                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-
-                                                <div className="absolute top-4 right-4">
-                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-lg backdrop-blur-md ${school.isPublic ? 'bg-green-500/90 text-white' : 'bg-purple-500/90 text-white'}`}>
-                                                        {school.isPublic ? 'Public' : 'Privé'}
-                                                    </span>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-
-                                    {/* Content Body */}
-                                    <div className="px-6 pb-6 flex-1 flex flex-col relative">
-                                        {/* Overlapping Logo - Profile Card Style */}
-                                        <div className="-mt-12 mb-4 relative z-10 flex justify-between items-end">
-                                            <div className="bg-white p-1 rounded-2xl shadow-lg w-24 h-24 flex items-center justify-center shrink-0">
-                                                <img
-                                                    src={school.logoUrl}
-                                                    alt={school.name}
-                                                    className="w-full h-full object-cover rounded-xl"
-                                                />
-                                            </div>
-                                            <div className="mb-1">
-                                                <span className={`inline-block px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide border ${style.categoryColor}`}>
-                                                    {school.category}
-                                                </span>
-                                            </div>
+                                    <div className="relative z-10 flex flex-col h-full">
+                                        {/* Header Image / Acronym Background */}
+                                        <div className={`h-28 relative overflow-hidden ${school.isNetworkHeader ? style.header : 'bg-gray-200'}`}>
+                                            {school.isNetworkHeader ? (
+                                                <>
+                                                    {/* Big Acronym Background */}
+                                                    <h1 className="absolute -bottom-4 right-0 text-[8rem] font-black opacity-10 leading-none select-none pointer-events-none text-white overflow-hidden whitespace-nowrap">
+                                                        {style.acronym}
+                                                    </h1>
+                                                    <div className="absolute top-4 right-4 z-10">
+                                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold shadow-sm ${school.isPublic ? 'bg-[#22c55e] text-white' : 'bg-purple-500 text-white'}`}>
+                                                            {school.isPublic ? <Building2 className="w-3 h-3 mr-1.5" /> : <Crown className="w-3 h-3 mr-1.5" />}
+                                                            {school.isPublic ? 'Public' : 'Privé'}
+                                                        </span>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-indigo-600"></div>
+                                                    <div className="absolute top-4 right-4 z-10">
+                                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold shadow-sm ${school.isPublic ? 'bg-[#22c55e] text-white' : 'bg-purple-500 text-white'}`}>
+                                                            {school.isPublic ? 'Public' : 'Privé'}
+                                                        </span>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
 
-                                        <div className="mb-4">
-                                            <h3 className="text-xl font-extrabold text-gray-900 leading-tight mb-1">
-                                                {school.name}
-                                            </h3>
-                                            <p className="text-sm text-gray-400 font-medium flex items-center">
-                                                <MapPin className="w-3.5 h-3.5 mr-1" /> {school.city}
-                                            </p>
-                                        </div>
-
-                                        <p className="text-sm text-gray-600 leading-relaxed mb-6 line-clamp-2">
-                                            {school.description}
-                                        </p>
-
-                                        {/* Admission Criteria Box */}
-                                        {school.admissionCriteria && (
-                                            <div className="mt-auto mb-6 bg-slate-50 rounded-xl p-4 border border-slate-100">
-                                                <h4 className="text-xs font-bold text-slate-500 mb-3 flex items-center uppercase tracking-wide">
-                                                    <Target className="w-3.5 h-3.5 mr-1.5" /> Critères d'admission
-                                                </h4>
-
-                                                {/* Visual Bac Requirements */}
-                                                <div className="mb-3">
-                                                    <p className="text-[10px] font-bold text-gray-400 mb-1.5">BAC REQUIS</p>
-                                                    <div className="flex flex-wrap gap-1.5">
-                                                        {school.admissionCriteria.bacTypes.map(b => (
-                                                            <span key={b} className={`inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold border ${getBacColor(b)}`}>
-                                                                <span className="mr-1.5 opacity-70">{getBacIcon(b)}</span>
-                                                                {b}
-                                                            </span>
-                                                        ))}
+                                        {/* Content Body */}
+                                        <div className="px-5 pb-5 flex-1 flex flex-col relative bg-white">
+                                            {/* Overlapping Logo & Category */}
+                                            <div className="-mt-12 mb-4 relative z-20 flex justify-between items-end">
+                                                <div className="bg-white p-1 rounded-2xl shadow-sm w-24 h-24 flex items-center justify-center shrink-0 border-4 border-white">
+                                                    {/* Colored block with Text if no image, using a placeholder logic for now */}
+                                                    <div className={`w-full h-full rounded-xl flex items-center justify-center ${school.isNetworkHeader ? 'bg-[#ff0055] text-white' : 'bg-white'} overflow-hidden`}>
+                                                        {school.isNetworkHeader ? (
+                                                            <span className="text-3xl font-normal">{style.acronym}</span>
+                                                        ) : (
+                                                            <img
+                                                                src={school.logoUrl}
+                                                                alt={school.name}
+                                                                className="w-full h-full object-contain p-1"
+                                                            />
+                                                        )}
                                                     </div>
                                                 </div>
-
-                                                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-200/50">
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-gray-400 mb-0.5">SEUIL D'ACCÈS</p>
-                                                        <p className="text-sm font-extrabold text-slate-800">{school.admissionCriteria.averageGradeRequired}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-gray-400 mb-0.5">MATIÈRES CLÉS</p>
-                                                        <p className="text-xs font-bold text-slate-600 truncate" title={school.admissionCriteria.keySubjects.join(', ')}>
-                                                            {school.admissionCriteria.keySubjects.slice(0, 2).join(', ')}
-                                                        </p>
-                                                    </div>
+                                                <div className="mb-2">
+                                                    <span className={`inline-flex items-center px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${style.categoryColor.replace('border-', 'border-0 bg-opacity-30')}`}>
+                                                        {school.category}
+                                                    </span>
                                                 </div>
                                             </div>
-                                        )}
 
-                                        <button
-                                            onClick={() => handleViewDetails(school)}
-                                            className="w-full py-3.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl shadow-sm hover:bg-gray-50 hover:text-primary-600 hover:border-primary-200 transition-all flex items-center justify-center mt-auto"
-                                        >
-                                            Voir la fiche complète <ArrowRight className="w-4 h-4 ml-2" />
-                                        </button>
+                                            <div className="mb-6">
+                                                <h3 className="text-[17px] font-black text-[#0f172a] leading-tight mb-2">
+                                                    {school.name}
+                                                </h3>
+                                                {school.city !== 'Réseau National' && (
+                                                    <div className="flex items-center px-2 py-1 bg-[#f8fafc] rounded-md w-fit text-[#64748b] text-[13px] font-medium border border-[#f1f5f9]">
+                                                        <MapPin className="w-3.5 h-3.5 mr-1.5 text-[#3b82f6]" strokeWidth={2.5} />
+                                                        <span>{school.city}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex-grow"></div>
+
+                                            <button
+                                                onClick={() => handleViewDetails(school)}
+                                                className="w-full py-3 bg-white border border-[#e2e8f0] text-[#1e293b] font-bold text-sm rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
+                                            >
+                                                Voir la fiche complète
+                                                <ArrowRight className="w-4 h-4 ml-2 text-gray-400" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             );

@@ -35,71 +35,74 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user: initia
     const [currentUploadDocId, setCurrentUploadDocId] = useState<number | null>(null);
 
     useEffect(() => {
-        const freshUser = dataService.getStudentById(initialUser.id);
-        if (freshUser) setUser(freshUser);
+        const loadData = async () => {
+            const freshUser = await dataService.getStudentById(initialUser.id);
+            if (freshUser) setUser(freshUser);
 
-        setTasks(dataService.getTasks(initialUser.id));
-        setDocuments(dataService.getDocuments(initialUser.id));
-        setRegistrations(dataService.getRegistrations(initialUser.id));
+            setTasks(await dataService.getTasks(initialUser.id));
+            setDocuments(await dataService.getDocuments(initialUser.id));
+            setRegistrations(await dataService.getRegistrations(initialUser.id));
+        }
+        loadData();
     }, [initialUser.id]);
 
     const gamificationRef = useRef<HTMLDivElement>(null);
 
-    const handleAddPoints = (points: number) => {
+    const handleAddPoints = async (points: number) => {
         const updatedUser = { ...user, points: user.points + points };
         setUser(updatedUser);
-        dataService.updateStudent(updatedUser);
+        await dataService.updateStudent(updatedUser);
     };
 
     // Tasks
-    const toggleTask = (id: number) => {
-        dataService.toggleTask(user.id, id);
-        setTasks(dataService.getTasks(user.id));
+    const toggleTask = async (id: number) => {
+        await dataService.toggleTask(user.id, id);
+        setTasks(await dataService.getTasks(user.id));
     };
 
-    const addTask = (e: React.FormEvent) => {
+    const addTask = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newTask.trim()) return;
-        dataService.addTask(user.id, newTask);
-        setTasks(dataService.getTasks(user.id));
+        await dataService.addTask(user.id, newTask);
+        setTasks(await dataService.getTasks(user.id));
         setNewTask('');
     };
 
-    const deleteTask = (id: number) => {
-        dataService.deleteTask(user.id, id);
-        setTasks(dataService.getTasks(user.id));
+    const deleteTask = async (id: number) => {
+        await dataService.deleteTask(user.id, id);
+        setTasks(await dataService.getTasks(user.id));
     };
 
     // Documents
     const DOC_SUGGESTIONS = ["Lettre de Motivation", "CV", "Relevé de Notes", "Attestation Réussite", "Photo d'identité"];
 
-    const handleAddDocumentRequest = (e: React.FormEvent) => {
+    const handleAddDocumentRequest = async (e: React.FormEvent) => {
         e?.preventDefault();
         if (!newDocName.trim()) return;
-        dataService.addDocument(user.id, newDocName);
-        setDocuments(dataService.getDocuments(user.id));
+        await dataService.addDocument(user.id, newDocName);
+        setDocuments(await dataService.getDocuments(user.id));
         setNewDocName('');
         setIsAddingDoc(false);
     };
 
-    const handleDeleteDocument = (id: number) => {
-        dataService.deleteDocument(user.id, id);
-        setDocuments(dataService.getDocuments(user.id));
+    const handleDeleteDocument = async (id: number) => {
+        await dataService.deleteDocument(user.id, id);
+        setDocuments(await dataService.getDocuments(user.id));
     };
 
     // Registration Methods
-    const handleAddRegistration = (e: React.FormEvent) => {
+    const handleAddRegistration = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newReg.schoolName || !newReg.formation) return;
-        dataService.addRegistration(user.id, newReg.schoolName, newReg.formation, newReg.status);
-        setRegistrations(dataService.getRegistrations(user.id));
+        await dataService.addRegistration(user.id, newReg.schoolName, newReg.formation, newReg.status);
+        setRegistrations(await dataService.getRegistrations(user.id));
         setNewReg({ schoolName: '', formation: '', status: 'En attente' });
         setIsAddingReg(false);
     };
 
-    const handleDeleteRegistration = (id: number) => {
-        dataService.deleteRegistration(user.id, id);
-        setRegistrations(dataService.getRegistrations(user.id));
+    const handleDeleteRegistration = async (id: number) => {
+        await dataService.deleteRegistration(user.id, id);
+        setRegistrations(await dataService.getRegistrations(user.id));
     };
 
     const getStatusColor = (status: RegistrationStatus) => {
@@ -121,7 +124,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user: initia
     };
 
     // Handle File Selection
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0] && currentUploadDocId !== null) {
             const file = e.target.files[0];
             // Validate file size/type if needed
@@ -130,8 +133,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user: initia
                 return;
             }
 
-            dataService.uploadDocument(user.id, currentUploadDocId, file);
-            setDocuments(dataService.getDocuments(user.id));
+            await dataService.uploadDocument(user.id, currentUploadDocId, file);
+            setDocuments(await dataService.getDocuments(user.id));
 
             // Reset
             if (fileInputRef.current) fileInputRef.current.value = '';

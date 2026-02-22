@@ -25,20 +25,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
     const [newTaskText, setNewTaskText] = useState('');
     const [newDocName, setNewDocName] = useState('');
 
+    const [loading, setLoading] = useState(true);
+
     // Load data
     useEffect(() => {
         refreshData();
     }, []);
 
-    const refreshData = () => {
-        setStudents(dataService.getStudents().filter(u => u.role !== 'admin'));
+    const refreshData = async () => {
+        setLoading(true);
+        const users = await dataService.getStudents();
+        setStudents(users.filter(u => u.role !== 'admin'));
+        setLoading(false);
     };
 
     useEffect(() => {
-        if (selectedStudent) {
-            setStudentTasks(dataService.getTasks(selectedStudent.id));
-            setStudentDocs(dataService.getDocuments(selectedStudent.id));
-        }
+        const loadStudentDetails = async () => {
+            if (selectedStudent) {
+                const tasks = await dataService.getTasks(selectedStudent.id);
+                const docs = await dataService.getDocuments(selectedStudent.id);
+                setStudentTasks(tasks);
+                setStudentDocs(docs);
+            }
+        };
+        loadStudentDetails();
     }, [selectedStudent]);
 
     // Filter Logic
@@ -54,50 +64,56 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
     // --- ACTIONS ---
 
     // Tasks
-    const handleAddTask = (e?: React.FormEvent) => {
+    const handleAddTask = async (e?: React.FormEvent) => {
         e?.preventDefault();
         if (selectedStudent && newTaskText.trim()) {
-            dataService.addTask(selectedStudent.id, newTaskText);
-            setStudentTasks(dataService.getTasks(selectedStudent.id));
+            await dataService.addTask(selectedStudent.id, newTaskText);
+            const updatedTasks = await dataService.getTasks(selectedStudent.id);
+            setStudentTasks(updatedTasks);
             setNewTaskText('');
         }
     };
 
-    const handleToggleTask = (taskId: number) => {
+    const handleToggleTask = async (taskId: number) => {
         if (selectedStudent) {
-            dataService.toggleTask(selectedStudent.id, taskId);
-            setStudentTasks(dataService.getTasks(selectedStudent.id));
+            await dataService.toggleTask(selectedStudent.id, taskId);
+            const updatedTasks = await dataService.getTasks(selectedStudent.id);
+            setStudentTasks(updatedTasks);
         }
     };
 
-    const handleDeleteTask = (taskId: number) => {
+    const handleDeleteTask = async (taskId: number) => {
         if (selectedStudent) {
-            dataService.deleteTask(selectedStudent.id, taskId);
-            setStudentTasks(dataService.getTasks(selectedStudent.id));
+            await dataService.deleteTask(selectedStudent.id, taskId);
+            const updatedTasks = await dataService.getTasks(selectedStudent.id);
+            setStudentTasks(updatedTasks);
         }
     };
 
     // Documents
-    const handleAddDocument = (e?: React.FormEvent) => {
+    const handleAddDocument = async (e?: React.FormEvent) => {
         e?.preventDefault();
         if (selectedStudent && newDocName.trim()) {
-            dataService.addDocument(selectedStudent.id, newDocName);
-            setStudentDocs(dataService.getDocuments(selectedStudent.id));
+            await dataService.addDocument(selectedStudent.id, newDocName);
+            const updatedDocs = await dataService.getDocuments(selectedStudent.id);
+            setStudentDocs(updatedDocs);
             setNewDocName('');
         }
     };
 
-    const handleUpdateDocStatus = (docId: number, status: StudentDocument['status']) => {
+    const handleUpdateDocStatus = async (docId: number, status: StudentDocument['status']) => {
         if (selectedStudent) {
-            dataService.updateDocumentStatus(selectedStudent.id, docId, status);
-            setStudentDocs(dataService.getDocuments(selectedStudent.id));
+            await dataService.updateDocumentStatus(selectedStudent.id, docId, status);
+            const updatedDocs = await dataService.getDocuments(selectedStudent.id);
+            setStudentDocs(updatedDocs);
         }
     };
 
-    const handleDeleteDocument = (docId: number) => {
+    const handleDeleteDocument = async (docId: number) => {
         if (selectedStudent) {
-            dataService.deleteDocument(selectedStudent.id, docId);
-            setStudentDocs(dataService.getDocuments(selectedStudent.id));
+            await dataService.deleteDocument(selectedStudent.id, docId);
+            const updatedDocs = await dataService.getDocuments(selectedStudent.id);
+            setStudentDocs(updatedDocs);
         }
     };
 
@@ -129,19 +145,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
     };
 
     // Student Profile
-    const handleUpdateProgress = (newProgress: number) => {
+    const handleUpdateProgress = async (newProgress: number) => {
         if (selectedStudent) {
             const updated = { ...selectedStudent, progress: newProgress };
-            dataService.updateStudent(updated);
+            await dataService.updateStudent(updated);
             setSelectedStudent(updated);
             refreshData();
         }
     };
 
-    const handleAddPoints = (points: number) => {
+    const handleAddPoints = async (points: number) => {
         if (selectedStudent) {
             const updated = { ...selectedStudent, points: selectedStudent.points + points };
-            dataService.updateStudent(updated);
+            await dataService.updateStudent(updated);
             setSelectedStudent(updated);
             refreshData();
         }
@@ -277,7 +293,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto flex-1">
+                        <div className="overflow-x-auto flex-1 relative min-h-[400px]">
+                            {loading ? (
+                                <div className="absolute inset-0 flex flex-col justify-center items-center bg-white/80 z-10 backdrop-blur-sm">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                                    <p className="mt-4 text-slate-500 font-medium">Chargement des étudiants...</p>
+                                </div>
+                            ) : null}
                             <table className="w-full text-left text-sm text-slate-600">
                                 <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase text-xs tracking-wider">
                                     <tr>
@@ -467,9 +489,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onImpersonate })
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${doc.status === 'Validé' ? 'bg-green-50 text-green-700 border-green-200' :
-                                                            doc.status === 'Rejeté' ? 'bg-red-50 text-red-700 border-red-200' :
-                                                                doc.status === 'En cours' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                                                    'bg-orange-50 text-orange-700 border-orange-200'
+                                                        doc.status === 'Rejeté' ? 'bg-red-50 text-red-700 border-red-200' :
+                                                            doc.status === 'En cours' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                                'bg-orange-50 text-orange-700 border-orange-200'
                                                         }`}>{doc.status}</span>
 
                                                     {/* Download Button - only if file present or just placeholder */}

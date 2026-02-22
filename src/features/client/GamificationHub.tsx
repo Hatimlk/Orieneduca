@@ -1,8 +1,20 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trophy, Star, Lock, CheckCircle, ArrowRight, Award, HelpCircle, PlayCircle, XCircle, Compass, Target, CalendarCheck, Plane, Cpu } from 'lucide-react';
 import { Badge, Quiz, QuizQuestion } from '../../types';
 import { MOCK_BADGES, MOCK_QUIZZES } from '../../constants';
+
+// Simulated API Fetch functionality for when backend endpoints are ready
+const fetchBadges = async (): Promise<Badge[]> => {
+    // const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/badges`);
+    // return response.json();
+    return new Promise(resolve => setTimeout(() => resolve(MOCK_BADGES), 300));
+};
+
+const fetchQuizzes = async (): Promise<Quiz[]> => {
+    // const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/quizzes`);
+    // return response.json();
+    return new Promise(resolve => setTimeout(() => resolve(MOCK_QUIZZES), 300));
+};
 
 interface GamificationHubProps {
     userPoints: number;
@@ -24,6 +36,23 @@ const getIcon = (name: string) => {
 };
 
 export const GamificationHub: React.FC<GamificationHubProps> = ({ userPoints, userBadges, onAddPoints, onUnlockBadge }) => {
+    const [badges, setBadges] = useState<Badge[]>([]);
+    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadGamificationData = async () => {
+            const [fetchedBadges, fetchedQuizzes] = await Promise.all([
+                fetchBadges(),
+                fetchQuizzes()
+            ]);
+            setBadges(fetchedBadges);
+            setQuizzes(fetchedQuizzes);
+            setLoading(false);
+        };
+        loadGamificationData();
+    }, []);
+
     const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
     const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
     const [quizScore, setQuizScore] = useState(0);
@@ -77,6 +106,8 @@ export const GamificationHub: React.FC<GamificationHubProps> = ({ userPoints, us
         setFeedback(null);
     };
 
+    if (loading) return <div className="text-center py-4">Chargement...</div>;
+
     return (
         <div className="space-y-8 animate-fade-in">
 
@@ -86,10 +117,10 @@ export const GamificationHub: React.FC<GamificationHubProps> = ({ userPoints, us
                     <h3 className="text-lg font-bold text-gray-900 flex items-center">
                         <Trophy className="w-5 h-5 mr-2 text-yellow-500" /> Mes Badges & Succès
                     </h3>
-                    <span className="text-xs text-gray-500">{userBadges.length}/{MOCK_BADGES.length} débloqués</span>
+                    <span className="text-xs text-gray-500">{userBadges.length}/{badges.length} débloqués</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                    {MOCK_BADGES.map(badge => {
+                    {badges.map(badge => {
                         const isUnlocked = userBadges.includes(badge.id) || badge.unlocked; // Using mock unlocked prop for demo
                         return (
                             <div key={badge.id} className={`flex flex-col items-center p-4 rounded-xl border text-center transition-all ${isUnlocked ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50 border-gray-100 opacity-60 grayscale'}`}>
@@ -117,7 +148,7 @@ export const GamificationHub: React.FC<GamificationHubProps> = ({ userPoints, us
 
                 {!activeQuiz ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {MOCK_QUIZZES.map(quiz => {
+                        {quizzes.map(quiz => {
                             const isDone = completedQuizzes.includes(quiz.id);
                             return (
                                 <div key={quiz.id} className="border border-gray-200 rounded-xl p-5 hover:border-primary-300 hover:shadow-md transition-all group">
@@ -175,10 +206,10 @@ export const GamificationHub: React.FC<GamificationHubProps> = ({ userPoints, us
                                             onClick={() => !feedback && handleAnswer(idx)}
                                             disabled={!!feedback}
                                             className={`w-full text-left p-4 rounded-xl border-2 transition-all ${feedback
-                                                    ? idx === activeQuiz.questions[currentQuestionIdx].correctAnswer
-                                                        ? 'border-green-500 bg-green-50 text-green-800'
-                                                        : idx === feedback.selectedOption ? 'border-red-500 bg-red-50' : 'border-gray-100 bg-gray-50 text-gray-400'
-                                                    : 'border-gray-100 hover:border-primary-300 hover:bg-primary-50'
+                                                ? idx === activeQuiz.questions[currentQuestionIdx].correctAnswer
+                                                    ? 'border-green-500 bg-green-50 text-green-800'
+                                                    : idx === feedback.selectedOption ? 'border-red-500 bg-red-50' : 'border-gray-100 bg-gray-50 text-gray-400'
+                                                : 'border-gray-100 hover:border-primary-300 hover:bg-primary-50'
                                                 }`}
                                         >
                                             {option}
